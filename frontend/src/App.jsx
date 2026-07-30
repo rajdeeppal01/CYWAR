@@ -233,7 +233,14 @@ export default function App() {
         {/* 1. FIXED TOP HEADER BAR */}
         <header className="cyber-header">
           <div className="flex items-center gap-sm">
-            <span style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-white)', letterSpacing: '-0.02em' }}>
+            <span 
+              onClick={() => {
+                handleScenarioChange('standard');
+                setSelectedCountry(null);
+              }}
+              className="cursor-pointer hover:text-[var(--neon-cyan)] transition-all duration-200"
+              style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-white)', letterSpacing: '-0.02em' }}
+            >
               CYWAR
             </span>
             <span 
