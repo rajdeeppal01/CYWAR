@@ -3,6 +3,7 @@ import ThreatMap from './components/ThreatMap';
 import ForecastPanel from './components/ForecastPanel';
 import ThreatStream from './components/ThreatStream';
 import AIBriefing from './components/AIBriefing';
+import ThreatAnalytics from './components/ThreatAnalytics';
 import { Shield, Radio, Terminal, Cpu } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000/api';
@@ -330,16 +331,21 @@ export default function App() {
             </div>
           </div>
 
-          {/* RIGHT SIDE: Anomaly prediction selectors */}
-          <div className="col-span-4 h-full overflow-hidden">
-            <ForecastPanel 
-              metrics={metrics}
-              selectedCountry={selectedCountry}
-              analysis={analysis}
-              activeScenario={activeScenario}
-              onScenarioChange={handleScenarioChange}
-              isLoading={isLoading}
-            />
+          {/* RIGHT SIDE: Anomaly prediction selectors & Analytics */}
+          <div className="col-span-4 flex flex-col gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
+            <div style={{ flexShrink: 0 }}>
+              <ForecastPanel 
+                metrics={metrics}
+                selectedCountry={selectedCountry}
+                analysis={analysis}
+                activeScenario={activeScenario}
+                onScenarioChange={handleScenarioChange}
+                isLoading={isLoading}
+              />
+            </div>
+            <div style={{ flexShrink: 0 }}>
+              <ThreatAnalytics packets={packets} />
+            </div>
           </div>
 
         </div>
