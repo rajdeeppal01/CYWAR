@@ -351,9 +351,9 @@ export default function AIBriefing({ metrics, analysis, selectedCountry, packets
                       {actor}
                     </span>
                     <div className="actor-tooltip">
-                      <div className="text-tiny font-mono font-extrabold text-[var(--neon-red)] uppercase margin-bottom-xs">{def.alias}</div>
-                      <div className="text-[10px] font-mono text-slate-400 margin-bottom-xs">ORIGIN: <span className="text-slate-200 font-bold">{def.origin}</span></div>
-                      <p className="text-[11px] font-sans text-slate-300 leading-normal">{def.description}</p>
+                      <div className="actor-tooltip-title">{def.alias}</div>
+                      <div className="actor-tooltip-origin">ORIGIN: <span style={{ color: '#fff' }}>{def.origin}</span></div>
+                      <p className="actor-tooltip-desc">{def.description}</p>
                     </div>
                   </div>
                 );
