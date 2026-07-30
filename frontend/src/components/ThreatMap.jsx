@@ -88,6 +88,23 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
     return [];
   }, [metrics]);
 
+  const trafficStats = useMemo(() => {
+    if (!packets || packets.length === 0) return { attacker: null, victim: null };
+    
+    const srcCounts = {};
+    const destCounts = {};
+    
+    packets.forEach(p => {
+      srcCounts[p.src] = (srcCounts[p.src] || 0) + 1;
+      destCounts[p.dest] = (destCounts[p.dest] || 0) + 1;
+    });
+    
+    const topAttacker = Object.entries(srcCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || null;
+    const topVictim = Object.entries(destCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || null;
+    
+    return { attacker: topAttacker, victim: topVictim };
+  }, [packets]);
+
   return (
     <div className="cyber-panel cyber-grid relative overflow-hidden flex flex-col h-full" style={{ padding: 0 }}>
       {/* Map header */}
@@ -148,6 +165,8 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
             {Object.entries(COUNTRIES).map(([code, path]) => {
               const isSelected = selectedCountry === code;
               const isHotspot = activeHotspots.includes(code);
+              const isTopAttacker = trafficStats.attacker === code;
+              const isTopVictim = trafficStats.victim === code;
               
               let fillVal = "rgba(22, 22, 26, 0.65)";
               let strokeVal = "var(--border-slate)";
@@ -155,6 +174,12 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
               if (isSelected) {
                 fillVal = "rgba(20, 184, 166, 0.12)";
                 strokeVal = "var(--neon-cyan)";
+              } else if (isTopAttacker) {
+                fillVal = "rgba(239, 68, 68, 0.08)"; // Red tint for source
+                strokeVal = "var(--neon-red)";       // Red outline
+              } else if (isTopVictim) {
+                fillVal = "rgba(251, 191, 36, 0.06)"; // Orange/Yellow tint for target
+                strokeVal = "var(--neon-orange)";    // Orange outline
               } else if (isHotspot) {
                 fillVal = "rgba(217, 70, 239, 0.03)";
                 strokeVal = "rgba(217, 70, 239, 0.35)";
@@ -330,7 +355,7 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
           <span className="flex items-center gap-xs"><span className="w-icon-xs rounded-full bg-[#38bdf8]" style={{ width: '6px', height: '6px' }}></span> Blue (Low)</span>
         </div>
         <div className="text-tiny uppercase tracking-wider text-slate-500">
-          Click country nodes to filter syslog traffic
+          Red Border: Top Attacker | Orange Border: Top Target
         </div>
       </div>
     </div>
