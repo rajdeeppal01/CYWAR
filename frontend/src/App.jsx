@@ -299,7 +299,7 @@ export default function App() {
           
           {/* LEFT SIDE: Map + Live logs + AI Briefing */}
           <div className="col-span-8 flex flex-col gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
-            <div style={{ height: '380px', flexShrink: 0 }}>
+            <div style={{ height: '410px', flexShrink: 0 }}>
               <ThreatMap 
                 packets={packets} 
                 metrics={metrics}

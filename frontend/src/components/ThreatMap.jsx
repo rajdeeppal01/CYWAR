@@ -113,7 +113,7 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
       </div>
 
       {/* Main Map SVG Wrapper */}
-      <div className="flex-1 relative flex items-center justify-center pad-lg bg-trans-black-10">
+      <div className="flex-1 relative flex items-center justify-center pad-sm bg-trans-black-10">
         <svg 
           viewBox="0 0 800 400" 
           preserveAspectRatio="xMidYMid meet"
