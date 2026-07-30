@@ -20,6 +20,12 @@ COUNTRIES = {
     "KP": "North Korea",
     "KR": "South Korea",
     "IN": "India",
+    "CA": "Canada",
+    "GL": "Greenland",
+    "BR": "Brazil",
+    "AF": "South Africa",
+    "MG": "Madagascar",
+    "NZ": "New Zealand",
 }
 
 SCENARIOS = {

@@ -85,6 +85,48 @@ const COUNTRY_OVERRIDES = {
     actors: ["Volt Typhoon", "APT41", "Lazarus Group"],
     sectors: ["Maritime Navigation", "Satellite Uplinks", "Telecom Switching Centers"],
     tactical: "Isolate SATCOM access routes. Block regional proxy IP segments. Audit logs for SQL injection beacons. Configure honeytoken traps on logistics databases."
+  },
+  "CA": {
+    name: "Canada",
+    summary: "Canada is detecting persistent attempts targeting public health data portals and defense research systems. Telemetry indicates automated brute-force scans seeking access to municipal grid services.",
+    actors: ["Volt Typhoon", "APT28 (Fancy Bear)"],
+    sectors: ["Public Health Systems", "Defense Research Mainframes"],
+    tactical: "Enforce multi-factor authentication perimeters. Update software access logs. Isolate remote login networks."
+  },
+  "GL": {
+    name: "Greenland",
+    summary: "Greenland communication stations are observing automated scanning probing arctic research SATCOM uplinks.",
+    actors: ["Volt Typhoon"],
+    sectors: ["SATCOM Research Networks"],
+    tactical: "Audit remote access credentials. Encrypt satellite log feeds. Configure strict traffic log limits."
+  },
+  "BR": {
+    name: "Brazil",
+    summary: "Brazil is monitoring elevated brute-force scanning volumes against financial transactions and logistics networks.",
+    actors: ["Sandworm (APT44)", "MuddyWater"],
+    sectors: ["Financial Routing Perimeters", "Industrial Ports"],
+    tactical: "Deploy threat intelligence blocklists. Audit access query logs. Enable strict rate limits on financial APIs."
+  },
+  "AF": {
+    name: "South Africa",
+    summary: "South Africa is observing anomalous directory traversal scans targeting municipal routing infrastructures.",
+    actors: ["Lazarus Group", "Charming Kitten"],
+    sectors: ["Logistics Supply Networks", "Local Utilities"],
+    tactical: "Isolate SCADA endpoints. Review egress proxy tunnels. Establish firewalls blocking scanning IPs."
+  },
+  "MG": {
+    name: "Madagascar",
+    summary: "Madagascar communications network reports baseline telemetry scanning on routing perimeters.",
+    actors: ["Generic scanning groups"],
+    sectors: ["Local Routing Infrastructure"],
+    tactical: "Verify firewall log filters. Audit local connection rules. Enforce standard security patch schedules."
+  },
+  "NZ": {
+    name: "New Zealand",
+    summary: "New Zealand is monitoring baseline port mapping scans targeting agricultural logistics databases and maritime transport perimeters.",
+    actors: ["Volt Typhoon"],
+    sectors: ["Agricultural Logistics Databases", "Maritime Ports"],
+    tactical: "Deploy high-priority IP blocklists. Update VPN tunnel configurations. Monitor database transactions."
   }
 };
 

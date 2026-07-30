@@ -16,7 +16,13 @@ export const NODES = {
   "PH": { x: 652, y: 198, name: "Philippines" },
   "KP": { x: 628, y: 138, name: "North Korea" },
   "KR": { x: 630, y: 144, name: "South Korea" },
-  "IN": { x: 518, y: 168, name: "India" }
+  "IN": { x: 518, y: 168, name: "India" },
+  "CA": { x: 135, y: 70, name: "Canada" },
+  "GL": { x: 232, y: 38, name: "Greenland" },
+  "BR": { x: 210, y: 300, name: "Brazil" },
+  "AF": { x: 410, y: 260, name: "South Africa" },
+  "MG": { x: 448, y: 304, name: "Madagascar" },
+  "NZ": { x: 745, y: 352, name: "New Zealand" }
 };
 
 // Detailed SVG landmass layers representing individual countries/regions (Flat SaaS Outline)
