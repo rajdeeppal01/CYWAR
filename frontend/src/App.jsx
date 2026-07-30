@@ -306,7 +306,7 @@ export default function App() {
         <div className="cyber-grid-container">
           
           {/* LEFT SIDE: Map + Live logs + AI Briefing */}
-          <div className="col-span-8 flex flex-col gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
+          <div className="col-span-8 flex flex-col justify-start gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
             <div style={{ height: '410px', flexShrink: 0 }}>
               <ThreatMap 
                 packets={packets} 
@@ -332,7 +332,7 @@ export default function App() {
           </div>
 
           {/* RIGHT SIDE: Anomaly prediction selectors & Analytics */}
-          <div className="col-span-4 flex flex-col gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
+          <div className="col-span-4 flex flex-col justify-start gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
             <div style={{ flexShrink: 0 }}>
               <ForecastPanel 
                 metrics={metrics}
