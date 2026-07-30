@@ -78,6 +78,13 @@ const COUNTRY_OVERRIDES = {
     actors: ["Volt Typhoon"],
     sectors: ["Defense Research Networks", "Mining Logistics"],
     tactical: "Audit remote access VPNs. Verify SCADA system isolation. Block foreign proxy egress ports."
+  },
+  "IN": {
+    name: "India",
+    summary: "India is observing increased port mapping and credential targeting campaigns against satellite networks and telecommunication hubs. Telemetry shows coordinated scans from regional proxy groups seeking access to logistics databases and maritime transport tracking services.",
+    actors: ["Volt Typhoon", "APT41", "Lazarus Group"],
+    sectors: ["Maritime Navigation", "Satellite Uplinks", "Telecom Switching Centers"],
+    tactical: "Isolate SATCOM access routes. Block regional proxy IP segments. Audit logs for SQL injection beacons. Configure honeytoken traps on logistics databases."
   }
 };
 

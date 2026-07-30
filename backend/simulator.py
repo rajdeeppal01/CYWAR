@@ -19,6 +19,7 @@ COUNTRIES = {
     "DE": "Germany",
     "KP": "North Korea",
     "KR": "South Korea",
+    "IN": "India",
 }
 
 SCENARIOS = {
@@ -48,6 +49,7 @@ SCENARIOS = {
         "attacks": [
             {"src": "CN", "dest": "PH", "ports": [4840, 102], "industries": ["Maritime Ports", "Telecom"], "types": ["ICS/SCADA Scan", "C2 Beaconing"]},
             {"src": "CN", "dest": "VN", "ports": [443, 8080], "industries": ["Defense", "Government"], "types": ["Database Exploitation", "Espionage Scan"]},
+            {"src": "CN", "dest": "IN", "ports": [4840, 8080], "industries": ["Maritime Ports", "Telecom"], "types": ["ICS/SCADA Scan", "C2 Beaconing"]},
             {"src": "CN", "dest": "US", "ports": [22, 3389], "industries": ["Naval Systems", "Aviation"], "types": ["Phishing", "Active Penetration"]}
         ],
         "headlines": [

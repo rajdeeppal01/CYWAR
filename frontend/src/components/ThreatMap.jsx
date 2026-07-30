@@ -15,7 +15,8 @@ export const NODES = {
   "VN": { x: 622, y: 190, name: "Vietnam" },
   "PH": { x: 652, y: 198, name: "Philippines" },
   "KP": { x: 628, y: 138, name: "North Korea" },
-  "KR": { x: 630, y: 144, name: "South Korea" }
+  "KR": { x: 630, y: 144, name: "South Korea" },
+  "IN": { x: 518, y: 168, name: "India" }
 };
 
 // Detailed SVG landmass layers representing individual countries/regions (Flat SaaS Outline)
@@ -74,7 +75,7 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
     if (metrics.scenario_name.includes("Eastern Europe")) {
       return ["RU", "UA", "PL"];
     } else if (metrics.scenario_name.includes("South China Sea")) {
-      return ["CN", "PH", "VN", "US"];
+      return ["CN", "PH", "VN", "US", "IN"];
     } else if (metrics.scenario_name.includes("Middle East")) {
       return ["IR", "IL", "US"];
     }

@@ -75,7 +75,7 @@ export default function App() {
 
     // Periodically push random threat traffic packets
     mockIntervalRef.current = setInterval(() => {
-      const activeNodes = ['US', 'GB', 'DE', 'PL', 'UA', 'RU', 'IL', 'IR', 'CN', 'TW', 'VN', 'PH', 'KP', 'KR'];
+      const activeNodes = ['US', 'GB', 'DE', 'PL', 'UA', 'RU', 'IL', 'IR', 'CN', 'TW', 'VN', 'PH', 'KP', 'KR', 'IN'];
       const src = activeNodes[Math.floor(Math.random() * activeNodes.length)];
       let dest = activeNodes[Math.floor(Math.random() * activeNodes.length)];
       while (dest === src) {
