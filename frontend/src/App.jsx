@@ -327,6 +327,7 @@ export default function App() {
           <div className="col-span-4 h-full overflow-hidden">
             <ForecastPanel 
               metrics={metrics}
+              selectedCountry={selectedCountry}
               analysis={analysis}
               activeScenario={activeScenario}
               onScenarioChange={handleScenarioChange}

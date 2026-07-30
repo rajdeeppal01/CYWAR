@@ -8,7 +8,57 @@ const SCENARIOS = [
   { id: 'middle_east', name: 'Middle East', icon: AlertTriangle }
 ];
 
-export default function ForecastPanel({ metrics, analysis, activeScenario, onScenarioChange, isLoading }) {
+export default function ForecastPanel({ metrics, selectedCountry, analysis, activeScenario, onScenarioChange, isLoading }) {
+  
+  // Compute display metrics based on selected country
+  const displayMetrics = React.useMemo(() => {
+    if (!selectedCountry) return metrics;
+
+    const hotspots = {
+      "eastern_europe": ["RU", "UA", "PL"],
+      "south_china_sea": ["CN", "PH", "VN", "US"],
+      "middle_east": ["IR", "IL", "US"]
+    };
+    
+    const activeHotspots = hotspots[activeScenario] || [];
+    if (activeHotspots.includes(selectedCountry)) {
+      // Hotspots inherit the scenario's active cyber warfare spikes
+      return metrics;
+    }
+
+    // Baseline definitions for non-hotspot countries
+    const baselineScores = {
+      "US": { z: 1.1, tension: 0.1, index: 32 },
+      "RU": { z: 2.1, tension: -0.4, index: 55 },
+      "CN": { z: 1.9, tension: -0.3, index: 48 },
+      "UA": { z: 1.8, tension: -0.2, index: 40 },
+      "IL": { z: 1.7, tension: -0.3, index: 45 },
+      "IR": { z: 2.0, tension: -0.4, index: 52 },
+      "AU": { z: 0.5, tension: 0.8, index: 12 },
+      "CA": { z: 0.4, tension: 0.85, index: 8 },
+      "GL": { z: 0.2, tension: 0.9, index: 5 },
+      "BR": { z: 0.7, tension: 0.6, index: 18 },
+      "AF": { z: 0.8, tension: 0.5, index: 22 },
+      "MG": { z: 0.3, tension: 0.8, index: 10 },
+      "NZ": { z: 0.3, tension: 0.9, index: 6 },
+      "DE": { z: 0.6, tension: 0.75, index: 15 },
+      "GB": { z: 0.8, tension: 0.7, index: 20 },
+      "PL": { z: 0.9, tension: 0.5, index: 25 },
+      "JP": { z: 0.6, tension: 0.75, index: 14 }
+    };
+
+    const base = baselineScores[selectedCountry] || { z: 0.5, tension: 0.7, index: 15 };
+    const isAnomaly = base.z > 2.0;
+
+    return {
+      ...metrics,
+      z_score: base.z,
+      sentiment_score: base.tension,
+      risk_score: base.index,
+      anomaly_detected: isAnomaly
+    };
+  }, [selectedCountry, metrics, activeScenario]);
+
   const getRiskColor = (score) => {
     if (score < 30) return 'var(--neon-green)';
     if (score < 60) return 'var(--neon-orange)';
@@ -82,19 +132,19 @@ export default function ForecastPanel({ metrics, analysis, activeScenario, onSce
           <div 
             className="risk-circle flex flex-col items-center justify-center transition-all duration-500 bg-trans-black-30"
             style={{ 
-              borderColor: getRiskColor(metrics.risk_score), 
-              boxShadow: `0 0 20px ${getRiskColor(metrics.risk_score)}20`,
+              borderColor: getRiskColor(displayMetrics.risk_score), 
+              boxShadow: `0 0 20px ${getRiskColor(displayMetrics.risk_score)}20`,
             }}
           >
-            <span className="text-large-val font-extrabold font-sans tracking-tight" style={{ color: getRiskColor(metrics.risk_score) }}>
-              {metrics.risk_score}%
+            <span className="text-large-val font-extrabold font-sans tracking-tight" style={{ color: getRiskColor(displayMetrics.risk_score) }}>
+              {displayMetrics.risk_score}%
             </span>
             <span className="text-tiny font-mono text-slate-500 font-bold margin-top-xs tracking-wider uppercase">CONFLICT INDEX</span>
           </div>
           <span 
-            className={`cyber-badge ${getRiskBadgeClass(metrics.risk_score)} margin-top-lg text-xs pad-x-sm pad-y-xs`}
+            className={`cyber-badge ${getRiskBadgeClass(displayMetrics.risk_score)} margin-top-lg text-xs pad-x-sm pad-y-xs`}
           >
-            {getRiskLabel(metrics.risk_score)}
+            {getRiskLabel(displayMetrics.risk_score)}
           </span>
         </div>
 
@@ -107,8 +157,8 @@ export default function ForecastPanel({ metrics, analysis, activeScenario, onSce
           <div>
             <div className="flex justify-between text-slate-300 margin-bottom-sm font-mono text-small">
               <span>CYBER ANOMALY (Z-SCORE):</span>
-              <span className={metrics.anomaly_detected ? 'text-[var(--neon-red)] font-bold' : 'text-[var(--neon-green)] font-bold'}>
-                {metrics.z_score} σ
+              <span className={displayMetrics.anomaly_detected ? 'text-[var(--neon-red)] font-bold' : 'text-[var(--neon-green)] font-bold'}>
+                {displayMetrics.z_score} σ
               </span>
             </div>
             <div 
@@ -118,8 +168,8 @@ export default function ForecastPanel({ metrics, analysis, activeScenario, onSce
               <div 
                 className="h-full rounded-full transition-all duration-500" 
                 style={{ 
-                  width: `${Math.min(100, (metrics.z_score / 5) * 100)}%`,
-                  background: metrics.anomaly_detected ? 'var(--neon-red)' : 'var(--neon-green)'
+                  width: `${Math.min(100, (displayMetrics.z_score / 5) * 100)}%`,
+                  background: displayMetrics.anomaly_detected ? 'var(--neon-red)' : 'var(--neon-green)'
                 }}
               ></div>
             </div>
@@ -129,21 +179,21 @@ export default function ForecastPanel({ metrics, analysis, activeScenario, onSce
           <div>
             <div className="flex justify-between text-slate-300 margin-bottom-sm font-mono text-small">
               <span>DIPLOMATIC TENSION TONE:</span>
-              <span style={{ color: metrics.sentiment_score < 0 ? 'var(--neon-red)' : 'var(--neon-green)' }} className="font-bold">
-                {metrics.sentiment_score > 0 ? '+' : ''}{metrics.sentiment_score}
+              <span style={{ color: displayMetrics.sentiment_score < 0 ? 'var(--neon-red)' : 'var(--neon-green)' }} className="font-bold">
+                {displayMetrics.sentiment_score > 0 ? '+' : ''}{displayMetrics.sentiment_score}
               </span>
             </div>
             <div 
-              className="rounded-full relative"
+              className="rounded-full relative" 
               style={{ height: '8px', backgroundColor: '#020617', border: '1px solid rgba(255,255,255,0.05)' }}
             >
               <div 
-                className="absolute h-full rounded-full transition-all duration-500"
-                style={{
-                  left: '50%',
-                  width: `${Math.abs(metrics.sentiment_score) * 50}%`,
-                  transform: metrics.sentiment_score < 0 ? 'translateX(-100%)' : 'none',
-                  background: metrics.sentiment_score < 0 ? 'var(--neon-red)' : 'var(--neon-green)'
+                className="absolute h-full rounded-full transition-all duration-500" 
+                style={{ 
+                  left: '50%', 
+                  width: `${Math.abs(displayMetrics.sentiment_score) * 50}%`,
+                  transform: displayMetrics.sentiment_score < 0 ? 'translateX(-100%)' : 'none',
+                  background: displayMetrics.sentiment_score < 0 ? 'var(--neon-red)' : 'var(--neon-green)'
                 }}
               ></div>
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-icon-xs h-3.5 bg-slate-500 rounded" style={{ width: '4px' }}></div>
