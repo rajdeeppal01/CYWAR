@@ -1,6 +1,100 @@
 import React, { useMemo } from 'react';
 import { Cpu, Globe } from 'lucide-react';
 
+const ACTOR_DEFINITIONS = {
+  "Sandworm (APT44)": {
+    alias: "APT44 / Voodoo Bear",
+    origin: "Russia (GRU)",
+    description: "A highly destructive state-sponsored group known for attacking industrial control systems. They famously caused the Ukrainian power grid blackouts of 2015 and 2016, and deployed the NotPetya wiper malware."
+  },
+  "Sandworm": {
+    alias: "APT44 / Voodoo Bear",
+    origin: "Russia (GRU)",
+    description: "A highly destructive state-sponsored group known for attacking industrial control systems. They famously caused the Ukrainian power grid blackouts of 2015 and 2016, and deployed the NotPetya wiper malware."
+  },
+  "APT28 (Fancy Bear)": {
+    alias: "Fancy Bear / GRU Unit 26165",
+    origin: "Russia (GRU)",
+    description: "A highly active cyber espionage group. They specialize in spear-phishing campaigns targeting government ministries, military attachés, and political institutions worldwide."
+  },
+  "Fancy Bear": {
+    alias: "Fancy Bear / GRU Unit 26165",
+    origin: "Russia (GRU)",
+    description: "A highly active cyber espionage group. They specialize in spear-phishing campaigns targeting government ministries, military attachés, and political institutions worldwide."
+  },
+  "APT41 (Double Dragon)": {
+    alias: "Double Dragon / BARIUM",
+    origin: "China",
+    description: "A prolific group that conducts state-directed cyber espionage alongside financially motivated operations. They target software supply chains, telecommunications, and healthcare providers."
+  },
+  "APT41": {
+    alias: "Double Dragon / BARIUM",
+    origin: "China",
+    description: "A prolific group that conducts state-directed cyber espionage alongside financially motivated operations. They target software supply chains, telecommunications, and healthcare providers."
+  },
+  "Volt Typhoon": {
+    alias: "Vanguard Panda",
+    origin: "China",
+    description: "A state-sponsored actor focused on pre-positioning inside critical infrastructure (such as communications, energy, and water systems). They use living-off-the-land techniques to remain stealthy."
+  },
+  "Lazarus Group": {
+    alias: "APT38 / Hidden Cobra",
+    origin: "North Korea",
+    description: "A state-sponsored group responsible for high-profile cyberattacks, including the 2014 Sony Pictures hack, the WannaCry ransomware outbreak, and major cryptocurrency thefts globally."
+  },
+  "MuddyWater (APT33)": {
+    alias: "APT33 / Elfin",
+    origin: "Iran",
+    description: "An espionage group active in the Middle East, targeting government entities, aviation, and energy sectors using custom backdoors and credential harvesting."
+  },
+  "MuddyWater": {
+    alias: "APT33 / Elfin",
+    origin: "Iran",
+    description: "An espionage group active in the Middle East, targeting government entities, aviation, and energy sectors using custom backdoors and credential harvesting."
+  },
+  "Charming Kitten": {
+    alias: "APT35 / Phosphorus",
+    origin: "Iran",
+    description: "An Iranian cyber espionage group that heavily targets journalists, activists, and geopolitical scholars through sophisticated social engineering and spear-phishing."
+  },
+  "UNC2589": {
+    alias: "UNC2589 / TEMP.Hermit",
+    origin: "Russia (SVR)",
+    description: "A cyber espionage group targeting government and diplomatic channels to collect strategic geopolitical intelligence. They utilize custom malware and cloud service compromises."
+  },
+  "Distributed Botnets": {
+    alias: "Mirai / IoT Botnets",
+    origin: "Global / Decentralized",
+    description: "Decentralized networks of compromised internet-connected devices (like routers and webcams) used to launch high-volume distributed denial-of-service (DDoS) flood attacks."
+  },
+  "Automated Scanners": {
+    alias: "Vulnerability Scanning Bots",
+    origin: "Global / Automated",
+    description: "Software scripts and crawlers that continuously sweep the internet to discover unpatched servers or exposed databases, often mapping vulnerabilities for future exploitation."
+  },
+  "Generic scanning groups": {
+    alias: "Internet Search Probes",
+    origin: "Global",
+    description: "Non-attributed scanning crawlers that sweep public ports looking for configuration leaks, weak security certificates, or unpatched legacy protocols."
+  }
+};
+
+const getActorDef = (actorName) => {
+  const cleaned = actorName.trim();
+  const match = ACTOR_DEFINITIONS[cleaned];
+  if (match) return match;
+  for (const key of Object.keys(ACTOR_DEFINITIONS)) {
+    if (cleaned.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(cleaned.toLowerCase())) {
+      return ACTOR_DEFINITIONS[key];
+    }
+  }
+  return {
+    alias: "Active Threat Cluster",
+    origin: "Unattributed / Proxy",
+    description: "An active cyber threat campaign targeting infrastructure portals to perform reconnaissance, espionage, or disruptive operations."
+  };
+};
+
 const COUNTRY_OVERRIDES = {
   "US": {
     name: "United States",
@@ -249,11 +343,21 @@ export default function AIBriefing({ metrics, analysis, selectedCountry, packets
               {selectedCountry ? "Regional Threat Actors" : "Suspected APT Actors"}
             </span>
             <div className="flex flex-wrap gap-xs margin-top-xs">
-              {activeContent.actors.map((actor, idx) => (
-                <span key={idx} className="cyber-badge cyber-badge-red text-tiny pad-x-xs pad-y-xs" style={{ borderRadius: '4px' }}>
-                  {actor}
-                </span>
-              ))}
+              {activeContent.actors.map((actor, idx) => {
+                const def = getActorDef(actor);
+                return (
+                  <div key={idx} className="actor-badge-container">
+                    <span className="cyber-badge cyber-badge-red text-tiny pad-x-xs pad-y-xs cursor-help" style={{ borderRadius: '4px' }}>
+                      {actor}
+                    </span>
+                    <div className="actor-tooltip">
+                      <div className="text-tiny font-mono font-extrabold text-[var(--neon-red)] uppercase margin-bottom-xs">{def.alias}</div>
+                      <div className="text-[10px] font-mono text-slate-400 margin-bottom-xs">ORIGIN: <span className="text-slate-200 font-bold">{def.origin}</span></div>
+                      <p className="text-[11px] font-sans text-slate-300 leading-normal">{def.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
