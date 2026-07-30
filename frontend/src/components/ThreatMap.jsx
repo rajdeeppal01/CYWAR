@@ -116,8 +116,9 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
       <div className="flex-1 relative flex items-center justify-center pad-lg bg-trans-black-10">
         <svg 
           viewBox="0 0 800 400" 
-          className="w-full h-auto select-none"
-          style={{ maxHeight: '100%' }}
+          preserveAspectRatio="xMidYMid meet"
+          className="select-none"
+          style={{ width: '100%', height: '100%', display: 'block' }}
         >
           <defs>
             {/* Dot grid pattern */}
