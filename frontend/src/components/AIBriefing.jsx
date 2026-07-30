@@ -95,6 +95,320 @@ const getActorDef = (actorName) => {
   };
 };
 
+const INFRASTRUCTURE_DEFINITIONS = {
+  "Defense Systems": {
+    alias: "Military & Tactical Command Systems",
+    vector: "Credential Harvesting & Malware Pre-Positioning",
+    description: "Threat actors sweep defense gateways to compromise strategic planning routes, mirror communications, or extract intelligence regarding tactical maneuvers."
+  },
+  "Energy Infrastructure": {
+    alias: "Power Generation & Grid Distribution Controls",
+    vector: "ICS/SCADA Modbus Hijacking & Firmware Rewriting",
+    description: "Substations are scanned using industrial control protocols. Compromises allow attackers to force grid relays open, causing physical circuit damage or blackout shutdowns."
+  },
+  "Financial Hubs": {
+    alias: "Core Clearing, Banking & Transaction Networks",
+    vector: "SQL Database Injection & Ledger Tampering",
+    description: "Espionage groups target bank databases and global routing gateways to siphon transactions, compromise wire records, or lock routing switches with ransomware."
+  },
+  "Power Distribution": {
+    alias: "Civic Grid Distribution Mainframes",
+    vector: "SCADA Protocol Overrides & Substation Trip Scans",
+    description: "Hackers target distribution substations to trigger safety shutdowns, blocking power to civic zones to generate local panic or mask ground physical movements."
+  },
+  "State Mainframes": {
+    alias: "Government Administration & Registry Services",
+    vector: "Directory Traversal & Core Document Exfiltration",
+    description: "Administrative registries are compromised to leak civil IDs, encrypt governmental databases, or shut down public service portals."
+  },
+  "Telecommunications": {
+    alias: "Fiber, Routing & Network Switching Centers",
+    vector: "Border Gateway Protocol Hijacks & Traffic Mirroring",
+    description: "State actors attempt to intercept switching routers to tap into communications lines, redirect DNS pathways, or sever international cable routes."
+  },
+  "Government Portals": {
+    alias: "Civil Administrative Web Perimeters",
+    vector: "DDoS Flood Streams & Web Portal Defacements",
+    description: "Hackers target government front-ends with high-volume request streams, disabling civic portals to disrupt standard public affairs operations."
+  },
+  "Egress Proxy Nodes": {
+    alias: "Bounced Routing & Concealed Proxy Nets",
+    vector: "Command & Control Redirection Beacons",
+    description: "Threat collectives hijack local servers to establish secure proxy pipelines, masking their geographical origins when running offensive cyber sweeps."
+  },
+  "Maritime Telecomm": {
+    alias: "Maritime Vessel SATCOM & High-Frequency Radio",
+    vector: "GPS Spoofing & Signal Interception Probes",
+    description: "Ship-to-shore communications are probed to mirror cargo files, intercept operational schedules, or jam regional distress signaling."
+  },
+  "Satellite Ground Stations": {
+    alias: "SATCOM Orbital Ground Control Hubs",
+    vector: "Firmware Overwrite & Telemetry Command Hijacks",
+    description: "Ground stations are scanned to intercept signal tracking feeds or inject unauthorized telemetry, potentially locking satellite communication paths."
+  },
+  "Oil & Gas Distribution": {
+    alias: "Pipeline Pumping & Flow Rate Valve Monitors",
+    vector: "Modbus/SCADA Flow Override Scans",
+    description: "Refineries are probed to bypass threshold sensors. Hackers seek to force pressure surges or close key valves to damage pipeline lines."
+  },
+  "Civilian Infrastructure": {
+    alias: "Municipal Power, Transport & Water Services",
+    vector: "Ransomware Encryptions & Remote Access Probes",
+    description: "General civic systems are swept for unpatched remote gateways, allowing attackers to lock administration screens and demand payouts."
+  },
+  "Civil Water Supply": {
+    alias: "Water Filtration, Chemical Feed & Treatment SCADA",
+    vector: "SCADA PLC Mixing Ratio Tampering",
+    description: "Water treatment plants are scanned to target remote chemical mixers or pump controls, posing chemical contamination threats to cities."
+  },
+  "Military Command Networks": {
+    alias: "Tactical Defense Communications Mainframes",
+    vector: "BGP Redirection & Target Data Interceptions",
+    description: "Command nets are swept to intercept telemetry data, spoof orders, or mirror tactical coordinate lines."
+  },
+  "Industrial Logistics": {
+    alias: "Manufacturing Supply Chains & Inventory Databases",
+    vector: "Database SQL Injections & API Session Hijacks",
+    description: "Logistics platforms are targeted to disrupt warehouse database logs, delay shipping schedules, or inject forged shipping manifests."
+  },
+  "Government Operations": {
+    alias: "Public Sector Administration Databases",
+    vector: "Directory Traversal & SQL Access Scans",
+    description: "Espionage actors sweep governmental services to exfiltrate strategic archives or compromise identity registries."
+  },
+  "Military Supply Chains": {
+    alias: "Logistics Tracking & Transport Distribution Centers",
+    vector: "Database Scans & Fleet Dispatch Interceptions",
+    description: "Transportation networks are targeted to track material deliveries, delay supply lines, or disrupt cargo timetables."
+  },
+  "Rail Transportation Systems": {
+    alias: "Switching Grid & Rail Signaling Computers",
+    vector: "Signaling Firmware Hijacking Scans",
+    description: "Hackers probe rail control systems to disrupt schedules, manipulate track signals, or block central dispatch lines."
+  },
+  "Financial Infrastructure": {
+    alias: "Transaction Routing & Central Ledger Mainframes",
+    vector: "Database Probing & Payment Egress Hijacks",
+    description: "Bank transaction networks are swept for credential vulnerabilities to compromise asset transfers or interrupt wire clearance."
+  },
+  "Public Health Portals": {
+    alias: "Healthcare registries & Hospital Databases",
+    vector: "Ransomware Encryption & API Data Siphons",
+    description: "Hospital databases are scanned for unpatched gateways. Attackers encrypt patient records to force immediate de-escalation payments."
+  },
+  "Maritime Shipping Systems": {
+    alias: "Port Container Cargo & Terminal Dispatch Logs",
+    vector: "Terminal Crane database & SCADA Spikes",
+    description: "Terminal databases are compromised to lock down loading cranes, alter cargo schedules, or freeze shipping lanes."
+  },
+  "Telecomm Routing Hubs": {
+    alias: "High-Speed Backbone Switching Terminals",
+    vector: "Border Gateway Protocol (BGP) Redirection Scans",
+    description: "Internet switches are scanned to route public web traffic through compromised state-sponsored nodes for monitoring."
+  },
+  "Defense Research Networks": {
+    alias: "Defense R&D Science & Technology Archives",
+    vector: "Espionage Spear-Phishing & Data Siphoning",
+    description: "Research systems are targeted to steal aerospace designs, military tech patents, or strategic defense blueprints."
+  },
+  "Mining Logistics": {
+    alias: "Industrial Resource Extraction & Freight Logs",
+    vector: "Ransomware Loops & SQL Database Tampering",
+    description: "Resource shipping systems are scanned to disrupt supply streams of critical raw materials."
+  },
+  "Maritime Navigation": {
+    alias: "Navigational GPS & Ship Transit Feeds",
+    vector: "GPS Signal Spoofing & Route Mapping Scans",
+    description: "Navigation databases are scanned to introduce location deviations, manipulate route logs, or jam GPS telemetry."
+  },
+  "Satellite Uplinks": {
+    alias: "SATCOM Communication Ground Links",
+    vector: "Uplink Command Overrides & Signal Noise Spikes",
+    description: "Ground uplink dishes are scanned to intercept raw communications or inject override payloads."
+  },
+  "Telecom Switching Centers": {
+    alias: "Regional switching Mainframes",
+    vector: "Router compromise & Mirroring beacons",
+    description: "Switching centers are targeted to intercept calling records or disable telecommunication links."
+  },
+  "Public Health Systems": {
+    alias: "Civic Health Registry Databases",
+    vector: "API Data Siphons & Ransomware Locks",
+    description: "Public health networks are targeted to harvest medical records or disrupt emergency medical services."
+  },
+  "Defense Research Mainframes": {
+    alias: "Defense R&D Prototype blueprins Archives",
+    vector: "Spear-Phishing & Espionage file siphons",
+    description: "R&D systems are targeted to steal files on advanced military tech prototypes."
+  },
+  "SATCOM Research Networks": {
+    alias: "Scientific SATCOM Ground research stations",
+    vector: "Ground dish control overrides",
+    description: "SATCOM systems are probed to compromise research data or hijack communication feeds."
+  },
+  "Financial Routing Perimeters": {
+    alias: "Bank Clearing Gateway Firewalls",
+    vector: "SQL injection & API session sweeps",
+    description: "Financial perimeters are scanned to locate vulnerabilities in transaction APIs."
+  },
+  "Industrial Ports": {
+    alias: "Commercial cargo Terminal Mainframes",
+    vector: "SCADA crane controls & scheduling overrides",
+    description: "Terminal systems are scanned to manipulate cargo schedules or lock container cranes."
+  },
+  "Logistics Supply Networks": {
+    alias: "Commercial distribution Logistics databases",
+    vector: "Database scans & routing switches",
+    description: "Supply networks are probed to disrupt cargo distribution or delay shipments."
+  },
+  "Local Utilities": {
+    alias: "Civic power, gas, and water SCADA",
+    vector: "OT control scans & emergency trips",
+    description: "Civic SCADA systems are scanned to probe emergency valves or power line relays."
+  },
+  "Local Routing Infrastructure": {
+    alias: "Regional network Routing switches",
+    vector: "Edge router firmware scans",
+    description: "Local switches are scanned to identify outdated firmware for BGP injection."
+  },
+  "Agricultural Logistics Databases": {
+    alias: "Food supply & shipping Logistics logs",
+    vector: "Database SQL injection & schedule tampering",
+    description: "Food supply databases are probed to disrupt transport logistics schedules."
+  },
+  "Maritime Ports": {
+    alias: "Container Terminal control databases",
+    vector: "SCADA crane & cargo logs hijacking",
+    description: "Port systems are scanned to alter cargo files or lock container loading cranes."
+  },
+  "Civilian Electricity Grids": {
+    alias: "Civic power grid control centers",
+    vector: "OT grid relay scans & emergency trips",
+    description: "Power grids are targeted to disable civic electricity and cause widespread civilian blackouts."
+  },
+  "Logistics Channels": {
+    alias: "Supply chain & cargo routing platforms",
+    vector: "Database sweeps & dispatch lockouts",
+    description: "Logistics platforms are targeted to disrupt warehouse records and delay transport schedules."
+  },
+  "Border Communications": {
+    alias: "Security & customs telecommunication nets",
+    vector: "Switching station sweeps & signal noise",
+    description: "Border communication systems are targeted to disable customs tracking or disrupt security forces."
+  },
+  "Cargo Shipping Routes": {
+    alias: "Navigational route mapping systems",
+    vector: "GPS signal spoofing & database overrides",
+    description: "Shipping routes are scanned to introduce coordinates drift or compromise navigational aids."
+  },
+  "Port Command Systems": {
+    alias: "Central Port Dispatch & scheduling databases",
+    vector: "Cargo dispatch DB scans & session hijacking",
+    description: "Port command is targeted to freeze terminal shipping schedules or lock container storage databases."
+  },
+  "Civil Air Traffic Command": {
+    alias: "Aviation navigation & radar switching",
+    vector: "Radar feed mirror scans & signal spoofing",
+    description: "Aviation command is scanned to target radar databases and introduce traffic tracking delays."
+  },
+  "Public Water Distribution": {
+    alias: "Municipal water filtration & pump SCADA",
+    vector: "PLC chemical mix & valve overrides",
+    description: "Water SCADA is scanned to manipulate filtration systems, posing safety risks to cities."
+  },
+  "Oil Refineries": {
+    alias: "Petrochemical flow valve control grids",
+    vector: "Valve pressure spikes & emergency trips",
+    description: "Refinery controls are scanned to alter valve states or force pressure thresholds."
+  },
+  "Air Defense Systems": {
+    alias: "Tactical airspace defense radar feeds",
+    vector: "Radar signal mirror & coordinate sweeps",
+    description: "Defense radars are scanned to tap target tracking lines or mirror coordinates."
+  },
+  "Water Command": {
+    alias: "Municipal water filtration SCADA",
+    vector: "SCADA valve & treatment overrides",
+    description: "Water command SCADA is scanned to locate valve vulnerabilities and manipulate filtration."
+  },
+  "Defense": {
+    alias: "Military command communications",
+    vector: "BGP routing & database sweeps",
+    description: "Defense systems are scanned to mirror communications or compromise strategic registries."
+  },
+  "Petrochemicals": {
+    alias: "Refinery petrochemical valve grids",
+    vector: "Pressure sensors overrides & emergency trips",
+    description: "Refinery SCADA is scanned to tamper with valve pressures or trigger shutdowns."
+  },
+  "Nuclear Facility": {
+    alias: "Nuclear turbine & centrifuge SCADA",
+    vector: "Spindle speed manipulate & safety trips",
+    description: "Centrifuges are targeted to override safety limits and trigger turbine shutdowns."
+  },
+  "Energy Grid": {
+    alias: "Civic power transmission mainframes",
+    vector: "OT relay overrides & substation trips",
+    description: "Energy grids are scanned to compromise transmission relays and force blackouts."
+  },
+  "Water Control (PLC)": {
+    alias: "Municipal water treatment PLC valves",
+    vector: "SCADA mixing & valve state overrides",
+    description: "Water treatment PLCs are scanned to target remote chemical mixers or valve configurations."
+  },
+  "Oil/Centrifuge Refineries": {
+    alias: "Refinery fuel flow & centrifuge SCADA",
+    vector: "OT flow override & spindle speed sweeps",
+    description: "Refineries are scanned to override pressure controls or tamper with safety thresholds."
+  },
+  "Aviation Routing": {
+    alias: "Aviation target & coordinate databases",
+    vector: "Signal mirroring & radar feed scans",
+    description: "Aviation routing systems are scanned to mirror flight coordinates or delay tracking feeds."
+  },
+  "Port Management Logs": {
+    alias: "Port cargo terminal dispatch logs",
+    vector: "Database SQL injection & schedule overrides",
+    description: "Cargo databases are scanned to manipulate shipping logs or freeze schedules."
+  },
+  "Vulnerable Infrastructures": {
+    alias: "Vulnerable Civic Infrastructure Channels",
+    vector: "Database queries & scanning probes",
+    description: "Civic networks are scanned for unpatched perimeters to map potential access paths."
+  },
+  "At-Risk Infrastructure Sectors": {
+    alias: "At-Risk Infrastructure Sectors",
+    vector: "Database queries & scanning probes",
+    description: "Civic networks are scanned for unpatched perimeters to map potential access paths."
+  },
+  "Retail Portals": {
+    alias: "Commercial E-Commerce transactions",
+    vector: "Database credential stuffing sweeps",
+    description: "Retail databases are probed to compromise user profiles or transaction histories."
+  },
+  "Personal Finance Sites": {
+    alias: "Online banking & asset management portals",
+    vector: "Credential stuffing & session sweeps",
+    description: "Financial portals are scanned to harvest logins or siphon asset logs."
+  }
+};
+
+const getInfraDef = (infraName) => {
+  const cleaned = infraName.trim();
+  const match = INFRASTRUCTURE_DEFINITIONS[cleaned];
+  if (match) return match;
+  for (const key of Object.keys(INFRASTRUCTURE_DEFINITIONS)) {
+    if (cleaned.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(cleaned.toLowerCase())) {
+      return INFRASTRUCTURE_DEFINITIONS[key];
+    }
+  }
+  return {
+    alias: "Critical Infrastructure Sector",
+    vector: "Network Vulnerability Scanner Probe",
+    description: "This civic or military infrastructure is targeted by background port scanning to map pathways and locate unpatched perimeter gateways."
+  };
+};
+
 const COUNTRY_OVERRIDES = {
   "US": {
     name: "United States",
@@ -367,11 +681,21 @@ export default function AIBriefing({ metrics, analysis, selectedCountry, packets
               {selectedCountry ? "Vulnerable Infrastructures" : "At-Risk Infrastructure Sectors"}
             </span>
             <div className="flex flex-wrap gap-xs margin-top-xs">
-              {activeContent.sectors.map((sec, idx) => (
-                <span key={idx} className="cyber-badge cyber-badge-orange text-tiny pad-x-xs pad-y-xs" style={{ borderRadius: '4px' }}>
-                  {sec}
-                </span>
-              ))}
+              {activeContent.sectors.map((sec, idx) => {
+                const def = getInfraDef(sec);
+                return (
+                  <div key={idx} className="infra-badge-container">
+                    <span className="cyber-badge cyber-badge-orange text-tiny pad-x-xs pad-y-xs cursor-help" style={{ borderRadius: '4px' }}>
+                      {sec}
+                    </span>
+                    <div className="infra-tooltip">
+                      <div className="infra-tooltip-title">{def.alias}</div>
+                      <div className="infra-tooltip-vector">VECTOR: <span style={{ color: '#fff' }}>{def.vector}</span></div>
+                      <p className="infra-tooltip-desc">{def.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
