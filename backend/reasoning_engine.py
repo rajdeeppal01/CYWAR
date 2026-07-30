@@ -10,31 +10,31 @@ except (ImportError, TypeError) as e:
     GENAI_AVAILABLE = False
     print(f"[REASONER WARNING] Google Generative AI library is unavailable: {e}. Running in high-fidelity offline briefing mode.")
 
-# Default local/offline templates if Gemini API Key is missing or invalid
+# Plain-English briefings for non-technical audiences
 LOCAL_BRIEFINGS = {
     "standard": {
-        "summary": "Global threat landscape is operating within normal parameters. Low-level scanning is predominantly automated, relating to botnets and search engine crawlers. No significant nation-state targeting shifts detected.",
-        "primary_actors": ["Distributed Botnets", "Script Kiddies"],
-        "critical_sectors": ["Retail", "Personal Finance"],
-        "tactical_assessment": "Standard patch management and hygiene controls are sufficient to mitigate current activities."
+        "summary": "The global internet is currently experiencing normal, everyday background noise. This is comparable to a burglar checking if windows on a house are locked, mostly carried out by automated computers looking for minor entry points. There is no evidence of coordinated nation-state campaigns or physical threat spikes. No emergency measures are required.",
+        "primary_actors": ["Distributed Botnets", "Automated Scanners"],
+        "critical_sectors": ["Retail Portals", "Personal Finance Sites"],
+        "tactical_assessment": "Maintain standard password updates and regular software security patches."
     },
     "eastern_europe": {
-        "summary": "CRITICAL RISK: Cyber operations indicate an imminent kinetic coordination window. Industrial control system scanning targeting Ukrainian power transmission grids (ports 502/102) has spiked by 340%. Auxiliary spear-phishing campaigns are active against Polish logistics networks, suggesting cyber disruption of supply paths prior to physical military mobilization.",
-        "primary_actors": ["APT28 (Fancy Bear / GRU)", "Sandworm Group"],
-        "critical_sectors": ["Electrical Transmission", "Military Logistics", "Border Control Systems"],
-        "tactical_assessment": "Deploy endpoint isolation protocols. Block external traffic on SCADA ports 502/102. Initiate backup communication protocols for logistics coordinators."
+        "summary": "CRITICAL ALERT: Coordinated cyber attacks are targeting public infrastructure in Ukraine, likely in preparation for physical military moves. State-sponsored hackers are probing electrical grids to trigger civilian blackouts and disable public communication channels. We strongly advise energy suppliers to disconnect grid control mainframes from the internet to isolate operations and prevent power outages.",
+        "primary_actors": ["Sandworm (APT44)", "APT28 (Fancy Bear)"],
+        "critical_sectors": ["Civilian Electricity Grids", "Logistics Channels", "Border Communications"],
+        "tactical_assessment": "Disconnect power grid controls from public internet servers and verify backup generator readiness."
     },
     "south_china_sea": {
-        "summary": "ELEVATED RISK: Active maritime cyber reconnaissance campaign detected. Target systems are predominantly SCADA and port management logs in the Philippines and naval communication routes in the Pacific. Increased control-and-command beaconing implies pre-positioning activities inside shipping logistics mainframes.",
-        "primary_actors": ["APT41 (Double Dragon)", "Volt Typhoon"],
-        "critical_sectors": ["Maritime Shipping", "Port Command Systems", "Aviation Routing"],
-        "tactical_assessment": "Audit maritime database access logs. Quarantine suspicious beaconing IPs routing through proxy routers. Verify security postures of regional shipping suppliers."
+        "summary": "ELEVATED RISK: Hacking groups are conducting virtual scouting operations targeting maritime shipping routes and port logistics databases in the Philippines and Pacific region. They are secretly positioning access routes to monitor cargo manifests. This digital pre-positioning suggests attempts to disrupt trade supply chains during diplomatic standoffs.",
+        "primary_actors": ["Volt Typhoon", "APT41 (Double Dragon)"],
+        "critical_sectors": ["Cargo Shipping Routes", "Port Management Logs", "Civil Air Traffic Command"],
+        "tactical_assessment": "Audit cargo logistics databases for unauthorized login attempts and block suspicious foreign proxy IP networks."
     },
     "middle_east": {
-        "summary": "CRITICAL RISK: Direct nation-state cyber warfare exchange active. Severe PLC/SCADA scans against water distribution nodes in Israel combined with retaliatory OT disruption codes targeting Iranian petrochemical centrifuges. High probability of physical retaliation if operations result in environmental or public health impacts.",
-        "primary_actors": ["APT34 (Helix Kitten)", "MuddyWater", "Mossad Cyber Unit (Implied)"],
-        "critical_sectors": ["Water Control (PLC)", "Oil/Centrifuge Refineries", "Air Defense Systems"],
-        "tactical_assessment": "Sever connection between external internet networks and public SCADA systems. Validate integrity of firmware versions on regional PLCs."
+        "summary": "CRITICAL ALERT: Active cyber exchanges are occurring between regional military command networks, directly targeting civilian water supplies and oil production facilities. Hackers are trying to hijack digital valves to disrupt services. Because these systems control physical resources, these cyber operations carry a high risk of triggering physical military responses.",
+        "primary_actors": ["MuddyWater (APT33)", "Regional Cyber Units"],
+        "critical_sectors": ["Public Water Distribution", "Oil Refineries", "Air Defense Systems"],
+        "tactical_assessment": "Isolate public water valve controls from external web access and verify local backup valves."
     }
 }
 
@@ -53,14 +53,15 @@ class CYWARReasoner:
             self.api_active = False
 
     def analyze(self, scenario_id: str, metrics: Dict[str, Any], recent_attacks: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Provides geopolitical briefing and risk breakdown for the UI"""
+        """Provides a plain-English geopolitical briefing and risk breakdown for the UI"""
         # Attempt to use Gemini if API Key is configured and available
         if self.api_active and GENAI_AVAILABLE:
             try:
-                # Prepare a structured prompt for JSON output
+                # Prepare a structured prompt for JSON output targeting a non-technical audience
                 prompt = f"""
                 You are a Senior Cyber-Geopolitical Analyst at a defense command cell.
-                You are analyzing a sudden anomaly in cyber attack patterns.
+                You are writing an intelligence summary for a non-technical audience (such as government officials or business leaders).
+                Translate the raw cyber metrics, ports, and syslog data into a clear, plain-English narrative.
                 
                 Scenario Context: {metrics['scenario_name']} - {metrics['scenario_desc']}
                 Z-Score Cyber Anomaly Metric: {metrics['z_score']} (Anything > 2.5 is high risk)
@@ -69,10 +70,10 @@ class CYWARReasoner:
                 Recent Cyber Telemetry Sample: {json.dumps(recent_attacks[:15])}
                 
                 Provide a structured JSON output with the following fields:
-                1. "summary": A concise 3-4 sentence professional briefing outlining what this cyber surge implies about upcoming physical/geopolitical conflicts. Connect the cyber targeting to the news events.
-                2. "primary_actors": List of 2-3 suspected state-sponsored threat actors (APTs) or collectives associated with these signatures.
-                3. "critical_sectors": Top 3 sectors under immediate threat.
-                4. "tactical_assessment": 1-2 actionable defense countermeasures to recommend.
+                1. "summary": A concise 3-4 sentence professional briefing in simple, non-technical English explaining what this cyber surge implies about upcoming physical/geopolitical conflicts. Connect the cyber targeting to the news events, using simple real-world analogies (e.g. explaining that port scanning is like checking if doors on a street are locked) and explaining the physical impact on cities, utilities, and citizens rather than using technical code jargon.
+                2. "primary_actors": List of 2-3 suspected threat actors (APTs) or collectives.
+                3. "critical_sectors": Top 3 sectors under immediate threat expressed in simple terms (e.g. "Public Power Grids", "Logistics Chains" instead of network terms).
+                4. "tactical_assessment": 1-2 actionable, easy-to-understand defense recommendations.
                 
                 Format the response strictly as valid JSON, with no markdown wrappers or formatting besides the raw JSON.
                 """

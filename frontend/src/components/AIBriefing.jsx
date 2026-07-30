@@ -194,8 +194,8 @@ export default function AIBriefing({ metrics, analysis, selectedCountry, packets
     // B: GLOBAL MAP OVERVIEW MODE
     const globalSummary = analysis ? analysis.summary : "Analyzing global cyber anomaly signals...";
     const inferenceSummary = syslogInferences 
-      ? `Real-time syslog aggregation indicates elevated threat telemetry originating from ${syslogInferences.topSrc} targeting key assets. The dominant attack pattern observed is ${syslogInferences.topType}, with high port scanning densities focused on Port ${syslogInferences.topPort}.`
-      : "Awaiting live packet streams to synthesize syslog threat flow vectors.";
+      ? ` Our systems detect a flow of automated cyber scans originating from ${syslogInferences.topSrc}. These are mostly digital probes checking for entry routes (categorized as "${syslogInferences.topType}"), focused on connection port ${syslogInferences.topPort}. This represents general background activity and does not pose an immediate risk to critical systems.`
+      : " Awaiting live data flows to map active network connections.";
 
     return {
       title: "GLOBAL CYBER GEOPOLITICAL BREIFING & ANOMALY ANALYSIS",
