@@ -1,5 +1,6 @@
 import random
 import time
+import requests
 from datetime import datetime
 from typing import Dict, List, Any
 
@@ -28,24 +29,51 @@ COUNTRIES = {
     "NZ": "New Zealand",
 }
 
+# Country mappings for GDELT news title parsing
+KEYWORD_MAPPINGS = {
+    "us": "US", "usa": "US", "america": "US", "washington": "US",
+    "russia": "RU", "russian": "RU", "moscow": "RU",
+    "china": "CN", "chinese": "CN", "beijing": "CN",
+    "ukraine": "UA", "ukrainian": "UA", "kyiv": "UA",
+    "israel": "IL", "israeli": "IL", "tel aviv": "IL",
+    "iran": "IR", "iranian": "IR", "tehran": "IR",
+    "india": "IN", "indian": "IN", "delhi": "IN",
+    "philippines": "PH", "filipino": "PH", "manila": "PH",
+    "vietnam": "VN", "vietnamese": "VN", "hanoi": "VN",
+    "taiwan": "TW", "taipei": "TW",
+    "poland": "PL", "polish": "PL", "warsaw": "PL",
+    "united kingdom": "GB", "uk": "GB", "british": "GB", "london": "GB",
+    "germany": "DE", "german": "DE", "berlin": "DE",
+    "north korea": "KP", "pyongyang": "KP", "dprk": "KP",
+    "south korea": "KR", "seoul": "KR",
+    "canada": "CA", "canadian": "CA",
+    "greenland": "GL",
+    "brazil": "BR", "brazilian": "BR",
+    "south africa": "AF",
+    "madagascar": "MG",
+    "new zealand": "NZ"
+}
+
 SCENARIOS = {
     "standard": {
         "name": "Standard Background Noise",
         "description": "Routine automated global scanning, low-level malware and botnets.",
-        "targets": []
+        "attacks": [
+            {"src": "US", "dest": "CN", "ports": [22, 443], "industries": ["E-Commerce", "Finance"], "types": ["Credential Stuffing", "SQL Injection"]},
+            {"src": "RU", "dest": "DE", "ports": [80, 8080], "industries": ["Education", "Logistics"], "types": ["Automated SCADA scan probe", "Directory traversal exploit check"]}
+        ],
+        "headlines": ["Global threat landscape within baseline margins."]
     },
     "eastern_europe": {
         "name": "Eastern Europe Escalation",
         "description": "State-sponsored cyber offensive targeting infrastructure in Ukraine, Poland, and Baltic states.",
         "attacks": [
-            {"src": "RU", "dest": "UA", "ports": [502, 102], "industries": ["Energy Grid", "Telecom"], "types": ["Wiper Malware", "OT Port Scan"]},
-            {"src": "RU", "dest": "PL", "ports": [22, 443], "industries": ["Government", "Logistics"], "types": ["Spear Phishing", "DDoS"]},
-            {"src": "RU", "dest": "US", "ports": [80, 8080], "industries": ["Defense", "Finance"], "types": ["Credential Stuffing", "APT Penetration"]}
+            {"src": "RU", "dest": "UA", "ports": [502, 102], "industries": ["Energy Grid", "Telecom"], "types": ["Wiper Payload", "OT Port Scan"]},
+            {"src": "RU", "dest": "PL", "ports": [22, 443], "industries": ["Government", "Logistics"], "types": ["Spear Phishing", "DDoS volumetric flood stream"]},
+            {"src": "RU", "dest": "US", "ports": [80, 8080], "industries": ["Defense", "Finance"], "types": ["Credential Stuffing", "Database SQL injection attempt"]}
         ],
         "headlines": [
-            "Tensions flare along the border as diplomatic talks break down",
             "Energy ministry reports critical infrastructure cyber-intrusions",
-            "Joint military exercises initiated in eastern corridors",
             "Sovereign data networks target of persistent state-backed wiper threat"
         ]
     },
@@ -53,15 +81,13 @@ SCENARIOS = {
         "name": "South China Sea Conflict",
         "description": "Cyber reconnaissance and infrastructure scans in maritime zones.",
         "attacks": [
-            {"src": "CN", "dest": "PH", "ports": [4840, 102], "industries": ["Maritime Ports", "Telecom"], "types": ["ICS/SCADA Scan", "C2 Beaconing"]},
-            {"src": "CN", "dest": "VN", "ports": [443, 8080], "industries": ["Defense", "Government"], "types": ["Database Exploitation", "Espionage Scan"]},
-            {"src": "CN", "dest": "IN", "ports": [4840, 8080], "industries": ["Maritime Ports", "Telecom"], "types": ["ICS/SCADA Scan", "C2 Beaconing"]},
-            {"src": "CN", "dest": "US", "ports": [22, 3389], "industries": ["Naval Systems", "Aviation"], "types": ["Phishing", "Active Penetration"]}
+            {"src": "CN", "dest": "PH", "ports": [4840, 102], "industries": ["Maritime Ports", "Telecom"], "types": ["Automated SCADA scan probe", "Encrypted command-and-control beacon"]},
+            {"src": "CN", "dest": "VN", "ports": [443, 8080], "industries": ["Defense", "Government"], "types": ["Database SQL injection attempt", "Automated SCADA scan probe"]},
+            {"src": "CN", "dest": "IN", "ports": [4840, 8080], "industries": ["Maritime Ports", "Telecom"], "types": ["Automated SCADA scan probe", "Encrypted command-and-control beacon"]},
+            {"src": "CN", "dest": "US", "ports": [22, 3389], "industries": ["Naval Systems", "Aviation"], "types": ["Spear Phishing", "Database SQL injection attempt"]}
         ],
         "headlines": [
-            "Maritime surveillance ships report standoff over contested reef",
             "Defense agencies warn of systemic attacks against port logistics systems",
-            "Bilateral maritime treaty negotiations suspended indefinitely",
             "Naval communication infrastructure hit by sophisticated malware"
         ]
     },
@@ -69,20 +95,18 @@ SCENARIOS = {
         "name": "Middle East Offensive",
         "description": "High-intensity cyber exchange targeting oil refineries and defense command units.",
         "attacks": [
-            {"src": "IR", "dest": "IL", "ports": [502, 22], "industries": ["Water Command", "Defense"], "types": ["PLC Exploitation", "DDoS"]},
-            {"src": "IL", "dest": "IR", "ports": [4840, 80], "industries": ["Petrochemicals", "Nuclear Facility"], "types": ["Industrial Sabotage", "Zero-day Payload"]},
-            {"src": "IR", "dest": "US", "ports": [443, 8080], "industries": ["Defense", "Energy Grid"], "types": ["Ransomware Injection", "Spear Phishing"]}
+            {"src": "IR", "dest": "IL", "ports": [502, 22], "industries": ["Water Command", "Defense"], "types": ["DDoS volumetric flood stream", "Automated SCADA scan probe"]},
+            {"src": "IL", "dest": "IR", "ports": [4840, 80], "industries": ["Petrochemicals", "Nuclear Facility"], "types": ["Database SQL injection attempt", "Directory traversal exploit check"]},
+            {"src": "IR", "dest": "US", "ports": [443, 8080], "industries": ["Defense", "Energy Grid"], "types": ["DDoS volumetric flood stream", "Spear Phishing"]}
         ],
         "headlines": [
             "Petrochemical facilities report emergency system shut-downs",
-            "Air defense installations undergo simulated cyber-readiness drilling",
-            "Cyber command issues red alert over regional supervisory control networks",
-            "Bilateral threats exchanged after central centrifuge command facility anomaly"
+            "Cyber command issues red alert over regional supervisory control networks"
         ]
     }
 }
 
-ATTACK_TYPES = ["DDoS Stream", "Credential Stuffing", "SQL Injection", "Wiper Payload", "ICS/SCADA Scan", "Spear Phishing", "Ransomware"]
+ATTACK_TYPES = ["DDoS volumetric flood stream", "Credential Stuffing", "Database SQL injection attempt", "Wiper Payload", "Automated SCADA scan probe", "Spear Phishing", "Encrypted command-and-control beacon"]
 INDUSTRIES = ["Finance", "Healthcare", "E-Commerce", "Government", "Logistics", "Energy Grid", "Defense", "Education"]
 PORTS = [80, 443, 22, 8080, 3389, 502, 102, 4840]
 
@@ -91,39 +115,110 @@ class CYWARSimulator:
         self.current_scenario = "standard"
         self.attack_history = []
         self.max_history_len = 1000
-        
+        self.live_articles = []
+        self.last_gdelt_fetch_time = 0
+        self.current_headline = "Awaiting first live GDELT stream handshake..."
+        self.current_sentiment = 0.05
+        self.fetch_gdelt_feed()
+
     def set_scenario(self, scenario_id: str):
         if scenario_id in SCENARIOS:
             self.current_scenario = scenario_id
+            self.fetch_gdelt_feed()
             return True
         return False
+
+    def fetch_gdelt_feed(self):
+        """Fetches real-time geopolitical and cyber news from GDELT API DOC V2"""
+        query_map = {
+            "standard": "(cyberattack%20OR%20%22cyber%20attack%22%20OR%20%22cyberwarfare%22%20OR%20%22hacker%22)",
+            "eastern_europe": "(russia%20OR%20ukraine%20OR%20poland)%20(cyberattack%20OR%20cyberwarfare%20OR%20hacker%20OR%20military)",
+            "south_china_sea": "(china%20OR%20philippines%20OR%20vietnam%20OR%20taiwan)%20(cyberattack%20OR%20cyberwarfare%20OR%20hacker%20OR%20military)",
+            "middle_east": "(iran%20OR%20israel)%20(cyberattack%20OR%20cyberwarfare%20OR%20hacker%20OR%20military)"
+        }
         
+        query = query_map.get(self.current_scenario, query_map["standard"])
+        try:
+            url = f'https://api.gdeltproject.org/api/v2/doc/doc?query={query}&mode=artlist&maxrecords=25&format=json'
+            res = requests.get(url, timeout=6)
+            if res.ok:
+                data = res.json()
+                articles = data.get("articles", [])
+                if articles:
+                    self.live_articles = articles
+                    self.last_gdelt_fetch_time = time.time()
+                    print(f"[GDELT Live Engine] Fetched {len(articles)} real articles for scenario: {self.current_scenario}")
+                    return
+        except Exception as e:
+            print(f"[GDELT Live Engine Warning] Failed to reach GDELT API: {e}. Utilizing internal mock data feeds.")
+        
+        # Local mock articles if API is down
+        self.live_articles = []
+
+    def extract_countries(self, title: str) -> List[str]:
+        """Parses article titles to identify which countries are named"""
+        title_lower = title.lower()
+        matched = []
+        for kw, code in KEYWORD_MAPPINGS.items():
+            if kw in title_lower:
+                if code not in matched:
+                    matched.append(code)
+        return matched
+
     def generate_event(self) -> Dict[str, Any]:
         scenario = SCENARIOS[self.current_scenario]
         
-        # Determine if attack comes from scenario or background noise
-        is_scenario_attack = self.current_scenario != "standard" and random.random() < 0.7
+        # Re-fetch news every 120 seconds
+        if not self.live_articles or (time.time() - self.last_gdelt_fetch_time > 120):
+            self.fetch_gdelt_feed()
+
+        # Try to pull headline from GDELT article feed
+        headline = None
+        src = None
+        dest = None
         
-        if is_scenario_attack:
-            # Generate coordinated campaign attack
-            campaign = random.choice(scenario["attacks"])
-            src = campaign["src"]
-            dest = campaign["dest"]
-            port = random.choice(campaign["ports"])
-            industry = random.choice(campaign["industries"])
-            attack_type = random.choice(campaign["types"])
-            severity = random.choice(["HIGH", "CRITICAL"])
-        else:
-            # Generate random background noise
-            src = random.choice(list(COUNTRIES.keys()))
-            dest = random.choice(list(COUNTRIES.keys()))
-            while dest == src:
-                dest = random.choice(list(COUNTRIES.keys()))
-            port = random.choice(PORTS)
-            industry = random.choice(INDUSTRIES)
-            attack_type = random.choice(ATTACK_TYPES)
-            severity = random.choice(["LOW", "MEDIUM", "HIGH"])
+        if self.live_articles:
+            article = random.choice(self.live_articles)
+            headline = article.get("title", "")
+            self.current_headline = headline
             
+            # Try to map packet flow endpoints dynamically from the headline text
+            matched = self.extract_countries(headline)
+            if len(matched) >= 2:
+                src = matched[0]
+                dest = matched[1]
+            elif len(matched) == 1:
+                src = matched[0]
+                # Pick a random other target node
+                active_codes = list(COUNTRIES.keys())
+                dest = random.choice(active_codes)
+                while dest == src:
+                    dest = random.choice(active_codes)
+        
+        # Fallback to templates if GDELT returned nothing or no country could be parsed
+        if not src or not dest:
+            is_scenario_attack = self.current_scenario != "standard" and random.random() < 0.7
+            if is_scenario_attack:
+                campaign = random.choice(scenario["attacks"])
+                src = campaign["src"]
+                dest = campaign["dest"]
+            else:
+                src = random.choice(list(COUNTRIES.keys()))
+                dest = random.choice(list(COUNTRIES.keys()))
+                while dest == src:
+                    dest = random.choice(list(COUNTRIES.keys()))
+
+        # If GDELT API is down, use template headline fallbacks
+        if not headline:
+            headline = random.choice(scenario["headlines"])
+            self.current_headline = headline
+
+        # Set packet parameters
+        port = random.choice(PORTS)
+        industry = random.choice(INDUSTRIES)
+        attack_type = random.choice(ATTACK_TYPES)
+        severity = random.choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+        
         event = {
             "timestamp": datetime.now().strftime("%H:%M:%S"),
             "src": src,
@@ -144,30 +239,28 @@ class CYWARSimulator:
         return event
 
     def get_anomaly_metrics(self) -> Dict[str, Any]:
-        """Calculates volume and computes a mock anomaly Z-score based on scenario"""
+        """Calculates volume metrics and includes the live GDELT news feed headline"""
         scenario = SCENARIOS[self.current_scenario]
         
-        # Calculate recent volume spikes
+        # Determine anomaly Z-scores based on scenario type
         if self.current_scenario == "standard":
             z_score = random.uniform(0.1, 1.4)
             anomaly_detected = False
-            news_headline = "Global cyber threats remain within standard seasonal baselines."
-            sentiment = 0.05 # neutral
+            sentiment = 0.05
         else:
             z_score = random.uniform(2.8, 4.5)
             anomaly_detected = True
-            news_headline = random.choice(scenario["headlines"])
-            sentiment = random.uniform(-0.9, -0.65) # highly negative
+            sentiment = random.uniform(-0.85, -0.55)
             
         risk_score = 15 if not anomaly_detected else int(z_score * 20 + abs(sentiment) * 10)
-        risk_score = min(98, max(5, risk_score)) # Keep within 5-98 range
+        risk_score = min(98, max(5, risk_score))
         
         return {
             "scenario_name": scenario["name"],
             "scenario_desc": scenario["description"],
             "z_score": round(z_score, 2),
             "anomaly_detected": anomaly_detected,
-            "news_headline": news_headline,
+            "news_headline": self.current_headline,
             "sentiment_score": round(sentiment, 2),
             "risk_score": risk_score
         }
