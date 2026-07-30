@@ -59,6 +59,42 @@ export default function ForecastPanel({ metrics, selectedCountry, analysis, acti
     };
   }, [selectedCountry, metrics, activeScenario]);
 
+  const predictiveSummary = React.useMemo(() => {
+    if (selectedCountry) {
+      const hotspots = {
+        "eastern_europe": ["RU", "UA", "PL"],
+        "south_china_sea": ["CN", "PH", "VN", "US"],
+        "middle_east": ["IR", "IL", "US"]
+      };
+      const activeHotspots = hotspots[activeScenario] || [];
+      const countryNames = {
+        "US": "United States", "RU": "Russia", "CN": "China", "UA": "Ukraine", "IL": "Israel", 
+        "IR": "Iran", "AU": "Australia", "CA": "Canada", "GL": "Greenland", "BR": "Brazil", 
+        "AF": "South Africa", "MG": "Madagascar", "NZ": "New Zealand", "DE": "Germany", 
+        "GB": "United Kingdom", "PL": "Poland", "JP": "Japan"
+      };
+      const name = countryNames[selectedCountry] || selectedCountry;
+      
+      if (activeHotspots.includes(selectedCountry)) {
+        return `Warning: ${name} is identified as an active hotspot in the simulated conflict. High network volatility and diplomatic friction indicators suggest a high probability of localized infrastructure disruptions.`;
+      } else {
+        return `Predictive models estimate low volatility and stable diplomatic conditions for ${name}. Regional data shows normal operational baselines.`;
+      }
+    }
+
+    // Global scenarios summaries
+    switch (activeScenario) {
+      case 'eastern_europe':
+        return "Warning: Multiple cyber indicators have breached emergency limits in the Eastern European corridor. Pre-war targeting of state mainframes and utility grids suggest a high probability of localized military or infrastructure disruption.";
+      case 'south_china_sea':
+        return "Warning: Marine routing hubs and coastal defense sectors are showing critical signal spikes. Predictive models estimate an elevated threat of targeted signal jamming and communication disruptions.";
+      case 'middle_east':
+        return "Warning: Elevated telemetry scans originating from regional proxy nodes indicate active reconnaissance campaigns. High-density server sweeps present imminent risks to financial and energy terminals.";
+      default:
+        return "Status: Global cyber signatures are operating within normal baseline limits. Low-level scanning is predominantly automated botnet activity. No coordinated state-sponsored escalation detected.";
+    }
+  }, [selectedCountry, activeScenario]);
+
   const getRiskColor = (score) => {
     if (score < 30) return 'var(--neon-green)';
     if (score < 60) return 'var(--neon-orange)';
@@ -202,6 +238,19 @@ export default function ForecastPanel({ metrics, selectedCountry, analysis, acti
               <span>Hostile / Conflict</span>
               <span>Collaborative / Allied</span>
             </div>
+          </div>
+
+          {/* Predictive Summary Text Block */}
+          <div 
+            className="margin-top-sm pad-sm rounded-lg bg-trans-black-20 border border-white-trans-5"
+            style={{ fontSize: '11px', lineHeight: '1.4', color: '#94a3b8' }}
+          >
+            <div className="font-mono text-tiny text-slate-500 font-extrabold uppercase margin-bottom-xs tracking-wider">
+              Predictive Cyber-Kinetic Summary
+            </div>
+            <p className="font-sans text-slate-300">
+              {predictiveSummary}
+            </p>
           </div>
         </div>
       </div>
