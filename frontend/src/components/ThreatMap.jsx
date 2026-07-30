@@ -75,7 +75,7 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
     if (metrics.scenario_name.includes("Eastern Europe")) {
       return ["RU", "UA", "PL"];
     } else if (metrics.scenario_name.includes("South China Sea")) {
-      return ["CN", "PH", "VN", "US", "IN"];
+      return ["CN", "PH", "VN", "US"];
     } else if (metrics.scenario_name.includes("Middle East")) {
       return ["IR", "IL", "US"];
     }
