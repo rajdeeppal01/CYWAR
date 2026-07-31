@@ -129,28 +129,49 @@ class CYWARSimulator:
         return False
 
     def fetch_gdelt_feed(self):
-        """Fetches real-time geopolitical and cyber news from GDELT API DOC V2"""
+        """Fetches real-time geopolitical and cyber news from Google News RSS to avoid GDELT rate limits"""
         query_map = {
-            "standard": "(cyberattack%20OR%20%22cyber%20attack%22%20OR%20%22cyberwarfare%22%20OR%20%22hacker%22)",
-            "eastern_europe": "(russia%20OR%20ukraine%20OR%20poland)%20(cyberattack%20OR%20cyberwarfare%20OR%20hacker%20OR%20military)",
-            "south_china_sea": "(china%20OR%20philippines%20OR%20vietnam%20OR%20taiwan)%20(cyberattack%20OR%20cyberwarfare%20OR%20hacker%20OR%20military)",
-            "middle_east": "(iran%20OR%20israel)%20(cyberattack%20OR%20cyberwarfare%20OR%20hacker%20OR%20military)"
+            "standard": 'cyberattack OR cybersecurity',
+            "eastern_europe": '(russia OR ukraine OR poland) AND (cyberattack OR cyberwarfare OR hacker OR military)',
+            "south_china_sea": '(china OR philippines OR vietnam OR taiwan) AND (cyberattack OR cyberwarfare OR hacker OR military)',
+            "middle_east": '(iran OR israel) AND (cyberattack OR cyberwarfare OR hacker OR military)'
         }
         
         query = query_map.get(self.current_scenario, query_map["standard"])
         try:
-            url = f'https://api.gdeltproject.org/api/v2/doc/doc?query={query}&mode=artlist&maxrecords=25&format=json'
+            import urllib.parse
+            import xml.etree.ElementTree as ET
+            url = f'https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=en-US&gl=US&ceid=US:en'
             res = requests.get(url, timeout=6)
             if res.ok:
-                data = res.json()
-                articles = data.get("articles", [])
+                root = ET.fromstring(res.text)
+                items = root.findall('.//item')
+                articles = []
+                for item in items:
+                    title_full = item.find('title').text if item.find('title') is not None else ""
+                    if ' - ' in title_full:
+                        title = ' - '.join(title_full.split(' - ')[:-1])
+                        source = title_full.split(' - ')[-1]
+                    else:
+                        title = title_full
+                        source = "Google News"
+                    link = item.find('link').text if item.find('link') is not None else "#"
+                    
+                    articles.append({
+                        "title": title,
+                        "source": source,
+                        "url": link
+                    })
+                    if len(articles) >= 15:
+                        break
+                
                 if articles:
                     self.live_articles = articles
                     self.last_gdelt_fetch_time = time.time()
-                    print(f"[GDELT Live Engine] Fetched {len(articles)} real articles for scenario: {self.current_scenario}")
+                    print(f"[News Engine] Fetched {len(articles)} real articles for scenario: {self.current_scenario}")
                     return
         except Exception as e:
-            print(f"[GDELT Live Engine Warning] Failed to reach GDELT API: {e}. Utilizing internal mock data feeds.")
+            print(f"[News Engine Warning] Failed to reach Google News RSS API: {e}. Utilizing internal mock data feeds.")
         
         # Local mock articles if API is down
         mocks = {
