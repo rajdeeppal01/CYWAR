@@ -420,7 +420,7 @@ export default function App() {
               <ThreatAnalytics packets={packets} countries={countries} />
             </div>
             <div style={{ flexShrink: 0 }}>
-              <ThreatNews articles={articles} />
+              <ThreatNews articles={articles} activeScenario={activeScenario} />
             </div>
           </div>
 

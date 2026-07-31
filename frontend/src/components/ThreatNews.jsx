@@ -1,13 +1,21 @@
 import React from 'react';
 import { Globe, ExternalLink } from 'lucide-react';
 
-const ThreatNews = React.memo(function ThreatNews({ articles }) {
+const ThreatNews = React.memo(function ThreatNews({ articles, activeScenario }) {
+  const regionNames = {
+    standard: "Global Baselines",
+    eastern_europe: "Eastern Europe",
+    south_china_sea: "South China Sea",
+    middle_east: "Middle East"
+  };
+  const regionName = regionNames[activeScenario] || activeScenario;
+
   return (
     <div className="cyber-panel pad-lg flex flex-col gap-md">
       <div className="flex justify-between items-center border-b border-white-trans-5 pad-bottom-sm">
         <h3 className="text-small font-extrabold text-slate-400 tracking-wider flex items-center gap-xs font-sans uppercase">
           <Globe className="w-icon-sm text-[var(--neon-cyan)] animate-pulse" />
-          GEOPOLITICAL THREAT INTELLIGENCE FEED
+          THREAT INTEL FEED: {regionName}
         </h3>
         <span className="flex items-center gap-xs text-tiny font-mono text-[var(--neon-cyan)] font-extrabold uppercase tracking-widest">
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-ping"></span>

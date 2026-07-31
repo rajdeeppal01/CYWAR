@@ -62,6 +62,11 @@ async def update_scenario(request: Request):
 
 @app.get("/api/status")
 async def get_status():
+    import time
+    # Force GDELT feed refresh if it is older than 10 seconds
+    if time.time() - simulator.last_gdelt_fetch_time > 10:
+        simulator.fetch_gdelt_feed()
+        
     metrics = simulator.get_anomaly_metrics()
     recent = list(simulator.attack_history)
     analysis = reasoner.analyze(simulator.current_scenario, metrics, recent)
