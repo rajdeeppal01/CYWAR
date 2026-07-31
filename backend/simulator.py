@@ -155,31 +155,31 @@ class CYWARSimulator:
         # Local mock articles if API is down
         mocks = {
             "standard": [
-                {"title": "Global cyber telemetry reports low-intensity baseline scanning across corporate networks.", "source": "Cyber Sentinel Feed", "url": "https://news.google.com/search?q=cybersecurity+telemetry+scanning"},
-                {"title": "Security analysts identify new automated botnet targeting vulnerable IoT routers.", "source": "Infosec Wire", "url": "https://news.google.com/search?q=botnet+IoT+routers+cybersecurity"},
-                {"title": "Ransomware groups target corporate software supply chains with phishing campaigns.", "source": "Threat Ledger", "url": "https://news.google.com/search?q=ransomware+software+supply+chain+phishing"},
-                {"title": "Global cloud hosting providers implement updated volumetric DDoS defenses.", "source": "NetSec Global", "url": "https://news.google.com/search?q=cloud+hosting+DDoS+defenses"},
-                {"title": "Threat intelligence networks report routine port scanning on enterprise gateway firewalls.", "source": "Security Brief", "url": "https://news.google.com/search?q=threat+intelligence+port+scanning+firewall"}
+                {"title": "Global cyber telemetry reports low-intensity baseline scanning across corporate networks.", "source": "Cyber Sentinel Feed", "url": "https://news.google.com/search?q=corporate+network+cyberattack+breach"},
+                {"title": "Security analysts identify new automated botnet targeting vulnerable IoT routers.", "source": "Infosec Wire", "url": "https://news.google.com/search?q=IoT+botnet+router+malware+cyberattack"},
+                {"title": "Ransomware groups target corporate software supply chains with phishing campaigns.", "source": "Threat Ledger", "url": "https://news.google.com/search?q=software+supply+chain+ransomware+phishing"},
+                {"title": "Global cloud hosting providers implement updated volumetric DDoS defenses.", "source": "NetSec Global", "url": "https://news.google.com/search?q=cloud+hosting+DDoS+attack"},
+                {"title": "Threat intelligence networks report routine port scanning on enterprise gateway firewalls.", "source": "Security Brief", "url": "https://news.google.com/search?q=enterprise+firewall+cyberattack+port+scanning"}
             ],
             "eastern_europe": [
                 {"title": "Cybersecurity alerts issued as critical energy routers in Ukraine report wiper malware probes.", "source": "Kiev Intel Dispatch", "url": "https://news.google.com/search?q=Ukraine+energy+cyberattack+wiper+malware"},
-                {"title": "Security agencies warn of advanced phishing vectors targeting logistic nodes in Poland.", "source": "Warsaw Security Journal", "url": "https://news.google.com/search?q=Poland+logistics+phishing+cyberattack"},
-                {"title": "State-backed threat groups coordinate volumetric DDoS floods against Baltic defense mainframes.", "source": "EuroDef Observer", "url": "https://news.google.com/search?q=Baltic+DDoS+cyberattack"},
-                {"title": "Energy grids in Eastern Europe configure OT ports to counter malicious firmware scans.", "source": "GridSec Weekly", "url": "https://news.google.com/search?q=Eastern+Europe+energy+grid+cyberattack"},
-                {"title": "Defense officials track massive coordinated reconnaissance campaigns on tactical servers.", "source": "Tactical Intel", "url": "https://news.google.com/search?q=cyber+reconnaissance+tactical+servers"}
+                {"title": "Security agencies warn of advanced phishing vectors targeting logistic nodes in Poland.", "source": "Warsaw Security Journal", "url": "https://news.google.com/search?q=Poland+logistics+cyberattack+phishing"},
+                {"title": "State-backed threat groups coordinate volumetric DDoS floods against Baltic defense mainframes.", "source": "EuroDef Observer", "url": "https://news.google.com/search?q=Baltic+states+DDoS+cyberattack"},
+                {"title": "Energy grids in Eastern Europe configure OT ports to counter malicious firmware scans.", "source": "GridSec Weekly", "url": "https://news.google.com/search?q=Eastern+Europe+energy+grid+cyberattack+OT"},
+                {"title": "Defense officials track massive coordinated reconnaissance campaigns on tactical servers.", "source": "Tactical Intel", "url": "https://news.google.com/search?q=military+tactical+server+cyberattack+reconnaissance"}
             ],
             "south_china_sea": [
                 {"title": "Maritime logistics hubs in the Philippines report automated SCADA scans on routing perimeters.", "source": "Manila Tech Gazette", "url": "https://news.google.com/search?q=Philippines+maritime+SCADA+cyberattack"},
-                {"title": "Naval command servers identify beacon attempts communicating with contested IP blocks.", "source": "Maritime Signal", "url": "https://news.google.com/search?q=naval+command+cyberattack+IP"},
-                {"title": "Port authorities in South China Sea detect critical satellite link intrusions.", "source": "Pacific Threat Map", "url": "https://news.google.com/search?q=South+China+Sea+satellite+cyberattack"},
-                {"title": "Geopolitical tensions increase as deep-sea telemetry networks observe coordinated port sweeps.", "source": "Aviation & Ocean Intel", "url": "https://news.google.com/search?q=deep-sea+telemetry+cyberattack"},
-                {"title": "Military communications grids enhance logging to segment persistent cyber probes.", "source": "Defense Perimeter Daily", "url": "https://news.google.com/search?q=military+communications+cyber+probes"}
+                {"title": "Naval command servers identify beacon attempts communicating with contested IP blocks.", "source": "Maritime Signal", "url": "https://news.google.com/search?q=naval+command+cyberattack"},
+                {"title": "Port authorities in South China Sea detect critical satellite link intrusions.", "source": "Pacific Threat Map", "url": "https://news.google.com/search?q=South+China+Sea+cyberattack+satellite"},
+                {"title": "Geopolitical tensions increase as deep-sea telemetry networks observe coordinated port sweeps.", "source": "Aviation & Ocean Intel", "url": "https://news.google.com/search?q=deep+sea+cable+cyberattack"},
+                {"title": "Military communications grids enhance logging to segment persistent cyber probes.", "source": "Defense Perimeter Daily", "url": "https://news.google.com/search?q=military+communications+cyberattack"}
             ],
             "middle_east": [
-                {"title": "Water command systems in Israel detect volumetric port floods originating from proxy nodes.", "source": "Tel Aviv Cyber News", "url": "https://news.google.com/search?q=Israel+water+cyberattack"},
+                {"title": "Water command systems in Israel detect volumetric port floods originating from proxy nodes.", "source": "Tel Aviv Cyber News", "url": "https://news.google.com/search?q=Israel+water+infrastructure+cyberattack"},
                 {"title": "Petrochemical mainframes in Iran experience automatic emergency failsafes after port sweeps.", "source": "Tehran Technology Review", "url": "https://news.google.com/search?q=Iran+petrochemical+cyberattack"},
-                {"title": "Regional cyber alert issued over database perimeter intrusions in Levant region.", "source": "Levant Threat Desk", "url": "https://news.google.com/search?q=Levant+cyberattack+database"},
-                {"title": "Tactical mainframes filter targeted SQL commands on critical defense servers.", "source": "Military NetSec", "url": "https://news.google.com/search?q=tactical+mainframe+cyberattack"},
+                {"title": "Regional cyber alert issued over database perimeter intrusions in Levant region.", "source": "Levant Threat Desk", "url": "https://news.google.com/search?q=Middle+East+database+cyberattack"},
+                {"title": "Tactical mainframes filter targeted SQL commands on critical defense servers.", "source": "Military NetSec", "url": "https://news.google.com/search?q=military+defense+server+cyberattack+SQL"},
                 {"title": "Geopolitical threat intelligence teams warn of retaliatory wiper activity in the region.", "source": "Mideast Analyst Group", "url": "https://news.google.com/search?q=Middle+East+wiper+malware+cyberattack"}
             ]
         }
