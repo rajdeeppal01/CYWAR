@@ -153,7 +153,38 @@ class CYWARSimulator:
             print(f"[GDELT Live Engine Warning] Failed to reach GDELT API: {e}. Utilizing internal mock data feeds.")
         
         # Local mock articles if API is down
-        self.live_articles = []
+        mocks = {
+            "standard": [
+                {"title": "Global cyber telemetry reports low-intensity baseline scanning across corporate networks.", "source": "Cyber Sentinel Feed", "url": "#"},
+                {"title": "Security analysts identify new automated botnet targeting vulnerable IoT routers.", "source": "Infosec Wire", "url": "#"},
+                {"title": "Ransomware groups target corporate software supply chains with phishing campaigns.", "source": "Threat Ledger", "url": "#"},
+                {"title": "Global cloud hosting providers implement updated volumetric DDoS defenses.", "source": "NetSec Global", "url": "#"},
+                {"title": "Threat intelligence networks report routine port scanning on enterprise gateway firewalls.", "source": "Security Brief", "url": "#"}
+            ],
+            "eastern_europe": [
+                {"title": "Cybersecurity alerts issued as critical energy routers in Ukraine report wiper malware probes.", "source": "Kiev Intel Dispatch", "url": "#"},
+                {"title": "Security agencies warn of advanced phishing vectors targeting logistic nodes in Poland.", "source": "Warsaw Security Journal", "url": "#"},
+                {"title": "State-backed threat groups coordinate volumetric DDoS floods against Baltic defense mainframes.", "source": "EuroDef Observer", "url": "#"},
+                {"title": "Energy grids in Eastern Europe configure OT ports to counter malicious firmware scans.", "source": "GridSec Weekly", "url": "#"},
+                {"title": "Defense officials track massive coordinated reconnaissance campaigns on tactical servers.", "source": "Tactical Intel", "url": "#"}
+            ],
+            "south_china_sea": [
+                {"title": "Maritime logistics hubs in the Philippines report automated SCADA scans on routing perimeters.", "source": "Manila Tech Gazette", "url": "#"},
+                {"title": "Naval command servers identify beacon attempts communicating with contested IP blocks.", "source": "Maritime Signal", "url": "#"},
+                {"title": "Port authorities in South China Sea detect critical satellite link intrusions.", "source": "Pacific Threat Map", "url": "#"},
+                {"title": "Geopolitical tensions increase as deep-sea telemetry networks observe coordinated port sweeps.", "source": "Aviation & Ocean Intel", "url": "#"},
+                {"title": "Military communications grids enhance logging to segment persistent cyber probes.", "source": "Defense Perimeter Daily", "url": "#"}
+            ],
+            "middle_east": [
+                {"title": "Water command systems in Israel detect volumetric port floods originating from proxy nodes.", "source": "Tel Aviv Cyber News", "url": "#"},
+                {"title": "Petrochemical mainframes in Iran experience automatic emergency failsafes after port sweeps.", "source": "Tehran Technology Review", "url": "#"},
+                {"title": "Regional cyber alert issued over database perimeter intrusions in Levant region.", "source": "Levant Threat Desk", "url": "#"},
+                {"title": "Tactical mainframes filter targeted SQL commands on critical defense servers.", "source": "Military NetSec", "url": "#"},
+                {"title": "Geopolitical threat intelligence teams warn of retaliatory wiper activity in the region.", "source": "Mideast Analyst Group", "url": "#"}
+            ]
+        }
+        self.live_articles = mocks.get(self.current_scenario, mocks["standard"])
+        self.last_gdelt_fetch_time = time.time()
 
     def extract_countries(self, title: str) -> List[str]:
         """Parses article titles to identify which countries are named"""

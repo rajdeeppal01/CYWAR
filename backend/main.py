@@ -53,7 +53,12 @@ async def update_scenario(request: Request):
     recent = list(simulator.attack_history)
     analysis = reasoner.analyze(scenario, metrics, recent)
     
-    return {"status": "success", "current_scenario": scenario, "analysis": analysis}
+    return {
+        "status": "success", 
+        "current_scenario": scenario, 
+        "analysis": analysis,
+        "articles": simulator.live_articles[:5]
+    }
 
 @app.get("/api/status")
 async def get_status():
@@ -63,7 +68,8 @@ async def get_status():
     return {
         "scenario": simulator.current_scenario,
         "metrics": metrics,
-        "analysis": analysis
+        "analysis": analysis,
+        "articles": simulator.live_articles[:5]
     }
 
 async def event_generator():
@@ -89,7 +95,8 @@ async def event_generator():
                 state_update = {
                     "type": "forecast_update",
                     "metrics": metrics,
-                    "analysis": cached_analysis
+                    "analysis": cached_analysis,
+                    "articles": simulator.live_articles[:5]
                 }
                 yield f"data: {json.dumps(state_update)}\n\n"
             
