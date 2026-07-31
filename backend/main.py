@@ -4,7 +4,7 @@ import asyncio
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from simulator import CYWARSimulator
+from simulator import CYWARSimulator, COUNTRIES, SCENARIOS
 from reasoning_engine import CYWARReasoner
 
 app = FastAPI(title="CYWAR - Geopolitical Prediction System API")
@@ -20,6 +20,18 @@ app.add_middleware(
 
 simulator = CYWARSimulator()
 reasoner = CYWARReasoner()
+
+@app.get("/api/config")
+async def get_config():
+    return {
+        "countries": COUNTRIES,
+        "scenarios": {
+            k: {
+                "name": v["name"],
+                "description": v["description"]
+            } for k, v in SCENARIOS.items()
+        }
+    }
 
 @app.post("/api/scenario")
 async def update_scenario(request: Request):

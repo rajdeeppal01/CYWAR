@@ -8,6 +8,14 @@ import { Shield, Radio, Terminal, Cpu } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000/api';
 
+const FALLBACK_COUNTRIES = {
+  "US": "United States", "RU": "Russia", "CN": "China", "UA": "Ukraine", "IL": "Israel", 
+  "IR": "Iran", "AU": "Australia", "CA": "Canada", "GL": "Greenland", "BR": "Brazil", 
+  "AF": "South Africa", "MG": "Madagascar", "NZ": "New Zealand", "DE": "Germany", 
+  "GB": "United Kingdom", "PL": "Poland", "JP": "Japan", "VN": "Vietnam", "PH": "Philippines",
+  "KP": "North Korea", "KR": "South Korea"
+};
+
 export default function App() {
   const [activeScenario, setActiveScenario] = useState('standard');
   const [packets, setPackets] = useState([]);
@@ -30,12 +38,29 @@ export default function App() {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isBackendConnected, setIsBackendConnected] = useState(false);
+  const [countries, setCountries] = useState(FALLBACK_COUNTRIES);
   
   const eventSourceRef = useRef(null);
   const mockIntervalRef = useRef(null);
+  const sseReconnectDelayRef = useRef(2000);
 
-  // Synchronize with API status on startup
+  const fetchConfig = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/config`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.countries) {
+          setCountries(data.countries);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch backend configuration. Operating in standalone fallback mode.");
+    }
+  };
+
+  // Synchronize with API status and config on startup
   useEffect(() => {
+    fetchConfig();
     fetchStatus();
     connectSSE();
     
@@ -135,14 +160,20 @@ export default function App() {
     es.onopen = () => {
       setIsBackendConnected(true);
       stopLocalSimulation();
+      sseReconnectDelayRef.current = 2000; // Reset delay on successful connection
     };
 
     es.onerror = () => {
       setIsBackendConnected(false);
       es.close();
       startLocalSimulation();
-      // Retry connection in 5 seconds
-      setTimeout(connectSSE, 5000);
+      
+      const currentDelay = sseReconnectDelayRef.current;
+      console.warn(`SSE connection failed. Retrying in ${currentDelay / 1000}s...`);
+      setTimeout(connectSSE, currentDelay);
+      
+      // Exponential backoff capped at 30 seconds
+      sseReconnectDelayRef.current = Math.min(currentDelay * 2, 30000);
     };
 
     es.onmessage = (event) => {
@@ -326,7 +357,6 @@ export default function App() {
                 metrics={metrics}
                 analysis={analysis}
                 selectedCountry={selectedCountry}
-                packets={packets}
               />
             </div>
           </div>
@@ -344,7 +374,7 @@ export default function App() {
               />
             </div>
             <div style={{ flexShrink: 0 }}>
-              <ThreatAnalytics packets={packets} />
+              <ThreatAnalytics packets={packets} countries={countries} />
             </div>
           </div>
 

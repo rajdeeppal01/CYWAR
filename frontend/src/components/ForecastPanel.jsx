@@ -8,7 +8,7 @@ const SCENARIOS = [
   { id: 'middle_east', name: 'Middle East', icon: AlertTriangle }
 ];
 
-export default function ForecastPanel({ metrics, selectedCountry, analysis, activeScenario, onScenarioChange, isLoading }) {
+const ForecastPanel = React.memo(function ForecastPanel({ metrics, selectedCountry, analysis, activeScenario, onScenarioChange, isLoading }) {
   
   // Compute display metrics based on selected country
   const displayMetrics = React.useMemo(() => {
@@ -256,4 +256,6 @@ export default function ForecastPanel({ metrics, selectedCountry, analysis, acti
       </div>
     </div>
   );
-}
+})
+
+export default ForecastPanel;

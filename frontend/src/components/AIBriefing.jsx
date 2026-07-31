@@ -538,33 +538,8 @@ const COUNTRY_OVERRIDES = {
   }
 };
 
-export default function AIBriefing({ metrics, analysis, selectedCountry, packets }) {
+const AIBriefing = React.memo(function AIBriefing({ metrics, analysis, selectedCountry }) {
   
-  // Aggregate live syslog parameters to infer global state dynamically
-  const syslogInferences = useMemo(() => {
-    if (!packets || packets.length === 0) return null;
-    
-    // Count ports and attack types
-    const portCounts = {};
-    const typeCounts = {};
-    const srcCounts = {};
-    
-    packets.forEach(p => {
-      portCounts[p.port] = (portCounts[p.port] || 0) + 1;
-      typeCounts[p.type] = (typeCounts[p.type] || 0) + 1;
-      srcCounts[p.src] = (srcCounts[p.src] || 0) + 1;
-    });
-    
-    // Find top targeted port
-    const topPort = Object.entries(portCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || "8080";
-    // Find top targeted vector type
-    const topType = Object.entries(typeCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || "Telemetry Scan";
-    // Find top source country
-    const topSrc = Object.entries(srcCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || "RU";
-    
-    return { topPort, topType, topSrc };
-  }, [packets]);
-
   // Determine active hotspots based on scenario name
   const hotspotRegions = useMemo(() => {
     if (!metrics) return "Global Baselines";
@@ -601,18 +576,15 @@ export default function AIBriefing({ metrics, analysis, selectedCountry, packets
 
     // B: GLOBAL MAP OVERVIEW MODE
     const globalSummary = analysis ? analysis.summary : "Analyzing global cyber anomaly signals...";
-    const inferenceSummary = syslogInferences 
-      ? ` Our systems detect a flow of automated cyber scans originating from ${syslogInferences.topSrc}. These are mostly digital probes checking for entry routes (categorized as "${syslogInferences.topType}"), focused on connection port ${syslogInferences.topPort}. This represents general background activity and does not pose an immediate risk to critical systems.`
-      : " Awaiting live data flows to map active network connections.";
 
     return {
       title: "GLOBAL CYBER GEOPOLITICAL BREIFING & ANOMALY ANALYSIS",
-      summary: `${globalSummary} ${inferenceSummary}`,
+      summary: globalSummary,
       actors: analysis ? analysis.primary_actors : ["Unknown"],
       sectors: analysis ? analysis.critical_sectors : ["None"],
       tactical: analysis ? analysis.tactical_assessment : "Establish connection to synchronize firewall metrics."
     };
-  }, [selectedCountry, analysis, syslogInferences]);
+  }, [selectedCountry, analysis]);
 
   return (
     <div className="cyber-panel pad-lg flex flex-col gap-md">
@@ -713,4 +685,6 @@ export default function AIBriefing({ metrics, analysis, selectedCountry, packets
       </div>
     </div>
   );
-}
+})
+
+export default AIBriefing;

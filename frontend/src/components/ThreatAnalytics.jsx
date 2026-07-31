@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Target, Zap } from 'lucide-react';
 
-export default function ThreatAnalytics({ packets }) {
+export default function ThreatAnalytics({ packets, countries }) {
   const stats = useMemo(() => {
     if (!packets || packets.length === 0) {
       return { attackers: [], victims: [] };
@@ -15,18 +15,10 @@ export default function ThreatAnalytics({ packets }) {
       destCounts[p.dest] = (destCounts[p.dest] || 0) + 1;
     });
 
-    const countryNames = {
-      "US": "United States", "RU": "Russia", "CN": "China", "UA": "Ukraine", "IL": "Israel", 
-      "IR": "Iran", "AU": "Australia", "CA": "Canada", "GL": "Greenland", "BR": "Brazil", 
-      "AF": "South Africa", "MG": "Madagascar", "NZ": "New Zealand", "DE": "Germany", 
-      "GB": "United Kingdom", "PL": "Poland", "JP": "Japan", "VN": "Vietnam", "PH": "Philippines",
-      "KP": "North Korea", "KR": "South Korea"
-    };
-
     const sortedAttackers = Object.entries(srcCounts)
       .map(([code, count]) => ({
         code,
-        name: countryNames[code] || code,
+        name: countries[code] || code,
         count
       }))
       .sort((a, b) => b.count - a.count)
@@ -35,7 +27,7 @@ export default function ThreatAnalytics({ packets }) {
     const sortedVictims = Object.entries(destCounts)
       .map(([code, count]) => ({
         code,
-        name: countryNames[code] || code,
+        name: countries[code] || code,
         count
       }))
       .sort((a, b) => b.count - a.count)
@@ -50,7 +42,7 @@ export default function ThreatAnalytics({ packets }) {
       maxAttacks,
       maxVictims
     };
-  }, [packets]);
+  }, [packets, countries]);
 
   return (
     <div className="cyber-panel pad-lg flex flex-col gap-md">
