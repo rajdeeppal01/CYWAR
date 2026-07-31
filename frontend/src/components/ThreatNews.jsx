@@ -33,21 +33,15 @@ const ThreatNews = React.memo(function ThreatNews({ articles, activeScenario }) 
               className="flex flex-col gap-xs pad-bottom-sm border-b border-white-trans-5 last:border-b-0 last:pad-bottom-0"
             >
               <div className="flex justify-between items-start gap-xs">
-                {item.url && item.url !== "#" ? (
-                  <a 
-                    href={item.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-slate-200 hover:text-[var(--neon-cyan)] transition-colors font-sans text-xs leading-relaxed font-bold flex items-center gap-1"
-                  >
-                    {item.title}
-                    <ExternalLink className="w-2.5 h-2.5 flex-shrink-0 text-slate-500" />
-                  </a>
-                ) : (
-                  <span className="text-slate-200 leading-relaxed font-bold">
-                    {item.title}
-                  </span>
-                )}
+                <a 
+                  href={item.url && item.url !== "#" ? item.url : `https://news.google.com/search?q=${encodeURIComponent(item.title)}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-slate-200 hover:text-[var(--neon-cyan)] transition-colors font-sans text-xs leading-relaxed font-bold flex items-center gap-1"
+                >
+                  {item.title}
+                  <ExternalLink className="w-2.5 h-2.5 flex-shrink-0 text-slate-500" />
+                </a>
               </div>
               <div className="flex justify-between text-tiny font-mono text-slate-500 uppercase">
                 <span>{item.source || "Unknown Source"}</span>
