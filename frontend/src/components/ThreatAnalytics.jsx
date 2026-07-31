@@ -18,7 +18,7 @@ export default function ThreatAnalytics({ packets, countries }) {
     const sortedAttackers = Object.entries(srcCounts)
       .map(([code, count]) => ({
         code,
-        name: countries[code] || code,
+        name: (countries && countries[code]) || code,
         count
       }))
       .sort((a, b) => b.count - a.count)
@@ -27,7 +27,7 @@ export default function ThreatAnalytics({ packets, countries }) {
     const sortedVictims = Object.entries(destCounts)
       .map(([code, count]) => ({
         code,
-        name: countries[code] || code,
+        name: (countries && countries[code]) || code,
         count
       }))
       .sort((a, b) => b.count - a.count)
