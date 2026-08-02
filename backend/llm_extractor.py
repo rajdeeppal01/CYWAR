@@ -21,15 +21,17 @@ class LLMExtractor:
         else:
             self.api_active = False
 
-    def extract_attack_from_news(self, headline: str, valid_countries: dict) -> dict:
+    def extract_attack_from_news(self, headline: str, valid_countries: dict, hotspot_name: str = None) -> dict:
         """Uses Gemini to extract cyber attack parameters directly from a real news headline"""
         if not self.api_active or not GENAI_AVAILABLE:
             return None
             
         try:
+            hotspot_context = f"The current active geopolitical hotspot is '{hotspot_name}'. If this headline is NOT related to this hotspot, return an empty JSON object {{}}." if hotspot_name else ""
             prompt = f"""
             You are a cyber threat intelligence extractor. 
             Analyze the following real-world news headline and extract the cyber attack indicators.
+            {hotspot_context}
             
             Headline: "{headline}"
             
@@ -43,6 +45,8 @@ class LLMExtractor:
             - "industry": The target industry (e.g., "Energy Grid", "Defense", "Telecom").
             - "port": A likely targeted port number based on the attack type (e.g., 80 for web, 22 for SSH, 502 for ICS/SCADA).
             - "severity": "MEDIUM", "HIGH", or "CRITICAL" based on the headline's urgency.
+            - "political_context": A short 1-2 sentence explanation of the geopolitical motivation behind this attack based on the headline (e.g., "Retaliation for recent economic sanctions").
+            - "threat_actor": The name of the specific state-sponsored APT group likely responsible (e.g., "Fancy Bear", "Volt Typhoon"). If not stated, infer a likely one based on the source country, or use "Unknown State Actor".
             
             Output MUST be just the JSON object.
             """
@@ -54,6 +58,9 @@ class LLMExtractor:
             
             data = json.loads(response.text)
             
+            if not data:
+                return None
+            
             # Validate output
             if data.get("src") not in valid_countries or data.get("dest") not in valid_countries:
                 return None
@@ -63,3 +70,37 @@ class LLMExtractor:
         except Exception as e:
             print(f"[LLM Extractor] Failed to extract from news: {e}")
             return None
+
+    def discover_hotspots(self, headlines: list) -> list:
+        """Uses Gemini to identify top 3 global cyber hotspots from a list of world news headlines"""
+        if not self.api_active or not GENAI_AVAILABLE or not headlines:
+            return []
+            
+        try:
+            headlines_text = "\n".join([f"- {h}" for h in headlines[:20]])
+            prompt = f"""
+            You are a geopolitical cyber intelligence analyst.
+            Review the following recent world news headlines:
+            
+            {headlines_text}
+            
+            Identify the top 3 most active or tense geopolitical cyber hotspots right now based ONLY on these headlines.
+            
+            Provide a strictly valid JSON response which is a LIST of 3 objects, each with these exact keys:
+            - "id": A lowercase snake_case identifier (e.g., "ukraine_conflict", "taiwan_strait").
+            - "name": A short human-readable name (e.g., "Russo-Ukrainian Cyber War", "South China Sea Tensions").
+            
+            Output MUST be just the JSON list.
+            """
+            
+            response = self.model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            
+            data = json.loads(response.text)
+            return data
+            
+        except Exception as e:
+            print(f"[LLM Extractor] Failed to discover hotspots: {e}")
+            return []

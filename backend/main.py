@@ -28,10 +28,10 @@ async def get_config():
     return {
         "countries": COUNTRIES,
         "scenarios": {
-            k: {
-                "name": v["name"],
-                "description": v["description"]
-            } for k, v in SCENARIOS.items()
+            "standard": {"name": "Global Monitor (OSINT)", "description": "Global OSINT data"}
+        } | {
+            hs["id"]: {"name": hs["name"], "description": "AI-Discovered Global Hotspot"} 
+            for hs in simulator.dynamic_hotspots
         }
     }
 
@@ -46,9 +46,7 @@ async def update_scenario(request: Request):
     if not scenario:
         raise HTTPException(status_code=400, detail="Missing scenario field")
         
-    success = simulator.set_scenario(scenario)
-    if not success:
-        raise HTTPException(status_code=400, detail="Invalid scenario ID")
+    simulator.set_scenario(scenario)
     
     # Run immediate re-analysis on scenario change
     metrics = simulator.get_anomaly_metrics()
@@ -76,7 +74,8 @@ async def get_status():
         "scenario": simulator.current_scenario,
         "metrics": metrics,
         "analysis": analysis,
-        "articles": simulator.live_articles[:5]
+        "articles": simulator.live_articles[:5],
+        "dynamic_scenarios": simulator.dynamic_hotspots
     }
 
 async def event_generator():

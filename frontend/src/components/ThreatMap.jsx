@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 // Exact coordinates for cyber nodes on our 800x400 map grid (geographically matched to detailed coordinates)
 export const NODES = {
+
   "US": { x: 155, y: 145, name: "United States" },
   "GB": { x: 358, y: 98, name: "United Kingdom" },
   "DE": { x: 395, y: 122, name: "Germany" },
@@ -75,8 +76,11 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
     return `M ${s.x} ${s.y} Q ${midX} ${midY} ${d.x} ${d.y}`;
   };
 
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const activeHotspots = useMemo(() => {
     if (!metrics || !metrics.anomaly_detected) return [];
+
     
     if (metrics.scenario_name.includes("Eastern Europe")) {
       return ["RU", "UA", "PL"];
@@ -299,51 +303,62 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
               }
 
               return (
+                <circle 
+                  key={`node-${code}`}
+                  cx={node.x} 
+                  cy={node.y} 
+                  r={size} 
+                  fill={nodeColor}
+                  className="transition-all duration-300"
+                />
+              );
+            })}
+          </g>
+
+          {/* Event Pins for attacks with political context */}
+          <g>
+            {packets.filter(p => p.political_context).map((pkt, idx) => {
+              const node = NODES[pkt.dest];
+              if (!node) return null;
+              
+              const isSelectedEvent = selectedEvent === pkt;
+              return (
                 <g 
-                  key={code} 
-                  className="cursor-pointer" 
-                  onClick={() => onSelectCountry(isSelected ? null : code)}
+                  key={`event-pin-${pkt.timestamp}-${idx}`} 
+                  transform={`translate(${node.x}, ${node.y - 12})`}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSelectedEvent(isSelectedEvent ? null : pkt)}
                 >
-                  {/* Clean static outer ring */}
-                  {(isHotspot || isSelected) && (
-                    <circle 
-                      cx={node.x} 
-                      cy={node.y} 
-                      r={size + 3} 
-                      fill="none" 
-                      stroke={nodeColor} 
-                      strokeWidth="0.8"
-                      strokeOpacity="0.6"
-                    />
-                  )}
-                  {/* Core dot */}
-                  <circle 
-                    cx={node.x} 
-                    cy={node.y} 
-                    r={size} 
-                    fill={nodeColor}
-                    className="transition-all duration-200"
-                  />
-                  {/* Small Label for hotspots or selected */}
-                  {(isHotspot || isSelected) && (
-                    <text 
-                      x={node.x} 
-                      y={node.y - 10} 
-                      fill={isHotspot ? "var(--neon-red)" : "var(--neon-cyan)"}
-                      fontSize="9"
-                      fontFamily="var(--font-mono)"
-                      fontWeight="bold"
-                      textAnchor="middle"
-                      className="pointer-events-none select-none"
-                    >
-                      {code}
-                    </text>
-                  )}
+                  <circle cx="0" cy="0" r="14" fill="rgba(251, 191, 36, 0.2)" className="animate-ping" />
+                  <path d="M0 4 L-5 -4 L0 -12 L5 -4 Z" fill="var(--neon-orange)" />
+                  <circle cx="0" cy="-6" r="2" fill="#000" />
                 </g>
               );
             })}
           </g>
         </svg>
+
+        {/* Event Pin Context Card Overlay */}
+        {selectedEvent && (
+          <div className="absolute z-20 bg-trans-black-40 border border-[var(--neon-orange)] pad-md rounded-lg shadow-[0_0_20px_rgba(251,191,36,0.15)]" style={{ top: '20px', right: '20px', width: '320px', backdropFilter: 'blur(8px)' }}>
+            <div className="flex justify-between items-center margin-bottom-sm">
+              <h3 className="text-small font-sans font-bold text-[var(--neon-orange)] uppercase flex items-center gap-xs">
+                <span className="w-icon-xs rounded-full bg-[var(--neon-orange)] animate-pulse" style={{ width: '6px', height: '6px' }}></span>
+                Intelligence Context
+              </h3>
+              <button onClick={() => setSelectedEvent(null)} className="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <div className="font-mono text-tiny text-slate-300 margin-bottom-xs">
+              <span className="text-slate-500">ACTOR:</span> {selectedEvent.threat_actor}
+            </div>
+            <div className="font-mono text-tiny text-slate-300 margin-bottom-xs">
+              <span className="text-slate-500">TARGET:</span> {selectedEvent.dest_name} ({selectedEvent.industry})
+            </div>
+            <div className="font-sans text-xs text-slate-200 margin-top-md" style={{ lineHeight: '1.4' }}>
+              {selectedEvent.political_context}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Legend & quick info */}

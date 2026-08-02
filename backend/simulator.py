@@ -119,29 +119,20 @@ class CYWARSimulator:
         self.live_articles = []
         self.last_gdelt_fetch_time = 0
         self.current_headline = "Awaiting live telemetry..."
+        self.dynamic_hotspots = []
         
         self.osint_feed = OSINTFeed()
         self.llm_extractor = LLMExtractor()
         self.fetch_gdelt_feed()
 
     def set_scenario(self, scenario_id: str):
-        if scenario_id in SCENARIOS:
-            self.current_scenario = scenario_id
-            self.fetch_gdelt_feed()
-            return True
-        return False
+        self.current_scenario = scenario_id
+        return True
 
     def fetch_gdelt_feed(self):
-        """Fetches real-time geopolitical and cyber news from Google News RSS to avoid GDELT rate limits"""
-        query_map = {
-            "standard": 'cyberattack OR cybersecurity',
-            "eastern_europe": '(russia OR ukraine OR poland) AND (cyberattack OR cyberwarfare OR hacker OR military)',
-            "south_china_sea": '(china OR philippines OR vietnam OR taiwan) AND (cyberattack OR cyberwarfare OR hacker OR military)',
-            "middle_east": '(iran OR israel) AND (cyberattack OR cyberwarfare OR hacker OR military)',
-            "enterprise": 'cyberattack OR cybersecurity'
-        }
+        """Fetches real-time world news from Google News RSS and discovers hotspots"""
+        query = 'cyberattack OR cybersecurity OR geopolitics OR cyberwarfare'
         
-        query = query_map.get(self.current_scenario, query_map["standard"])
         try:
             import urllib.parse
             import xml.etree.ElementTree as ET
@@ -166,50 +157,40 @@ class CYWARSimulator:
                         "source": source,
                         "url": link
                     })
-                    if len(articles) >= 15:
+                    if len(articles) >= 40:
                         break
                 
                 if articles:
                     self.live_articles = articles
                     self.last_gdelt_fetch_time = time.time()
-                    print(f"[News Engine] Fetched {len(articles)} real articles for scenario: {self.current_scenario}")
+                    print(f"[News Engine] Fetched {len(articles)} real world articles.")
+                    
+                    # Discover hotspots
+                    hotspots = self.llm_extractor.discover_hotspots([a["title"] for a in articles])
+                    if hotspots:
+                        self.dynamic_hotspots = hotspots
+                        print(f"[News Engine] Discovered hotspots: {hotspots}")
                     return
         except Exception as e:
             print(f"[News Engine Warning] Failed to reach Google News RSS API: {e}. Utilizing internal mock data feeds.")
         
         # Local mock articles if API is down
-        mocks = {
-            "standard": [
-                {"title": "Global cyber telemetry reports low-intensity baseline scanning across corporate networks.", "source": "Cyber Sentinel Feed", "url": "https://news.google.com/search?q=corporate+network+cyberattack+breach"},
-                {"title": "Security analysts identify new automated botnet targeting vulnerable IoT routers.", "source": "Infosec Wire", "url": "https://news.google.com/search?q=IoT+botnet+router+malware+cyberattack"},
-                {"title": "Ransomware groups target corporate software supply chains with phishing campaigns.", "source": "Threat Ledger", "url": "https://news.google.com/search?q=software+supply+chain+ransomware+phishing"},
-                {"title": "Global cloud hosting providers implement updated volumetric DDoS defenses.", "source": "NetSec Global", "url": "https://news.google.com/search?q=cloud+hosting+DDoS+attack"},
-                {"title": "Threat intelligence networks report routine port scanning on enterprise gateway firewalls.", "source": "Security Brief", "url": "https://news.google.com/search?q=enterprise+firewall+cyberattack+port+scanning"}
-            ],
-            "eastern_europe": [
-                {"title": "Cybersecurity alerts issued as critical energy routers in Ukraine report wiper malware probes.", "source": "Kiev Intel Dispatch", "url": "https://news.google.com/search?q=Ukraine+energy+cyberattack+wiper+malware"},
-                {"title": "Security agencies warn of advanced phishing vectors targeting logistic nodes in Poland.", "source": "Warsaw Security Journal", "url": "https://news.google.com/search?q=Poland+logistics+cyberattack+phishing"},
-                {"title": "State-backed threat groups coordinate volumetric DDoS floods against Baltic defense mainframes.", "source": "EuroDef Observer", "url": "https://news.google.com/search?q=Baltic+states+DDoS+cyberattack"},
-                {"title": "Energy grids in Eastern Europe configure OT ports to counter malicious firmware scans.", "source": "GridSec Weekly", "url": "https://news.google.com/search?q=Eastern+Europe+energy+grid+cyberattack+OT"},
-                {"title": "Defense officials track massive coordinated reconnaissance campaigns on tactical servers.", "source": "Tactical Intel", "url": "https://news.google.com/search?q=military+tactical+server+cyberattack+reconnaissance"}
-            ],
-            "south_china_sea": [
-                {"title": "Maritime logistics hubs in the Philippines report automated SCADA scans on routing perimeters.", "source": "Manila Tech Gazette", "url": "https://news.google.com/search?q=Philippines+maritime+SCADA+cyberattack"},
-                {"title": "Naval command servers identify beacon attempts communicating with contested IP blocks.", "source": "Maritime Signal", "url": "https://news.google.com/search?q=naval+command+cyberattack"},
-                {"title": "Port authorities in South China Sea detect critical satellite link intrusions.", "source": "Pacific Threat Map", "url": "https://news.google.com/search?q=South+China+Sea+cyberattack+satellite"},
-                {"title": "Geopolitical tensions increase as deep-sea telemetry networks observe coordinated port sweeps.", "source": "Aviation & Ocean Intel", "url": "https://news.google.com/search?q=deep+sea+cable+cyberattack"},
-                {"title": "Military communications grids enhance logging to segment persistent cyber probes.", "source": "Defense Perimeter Daily", "url": "https://news.google.com/search?q=military+communications+cyberattack"}
-            ],
-            "middle_east": [
-                {"title": "Water command systems in Israel detect volumetric port floods originating from proxy nodes.", "source": "Tel Aviv Cyber News", "url": "https://news.google.com/search?q=Israel+water+infrastructure+cyberattack"},
-                {"title": "Petrochemical mainframes in Iran experience automatic emergency failsafes after port sweeps.", "source": "Tehran Technology Review", "url": "https://news.google.com/search?q=Iran+petrochemical+cyberattack"},
-                {"title": "Regional cyber alert issued over database perimeter intrusions in Levant region.", "source": "Levant Threat Desk", "url": "https://news.google.com/search?q=Middle+East+database+cyberattack"},
-                {"title": "Tactical mainframes filter targeted SQL commands on critical defense servers.", "source": "Military NetSec", "url": "https://news.google.com/search?q=military+defense+server+cyberattack+SQL"},
-                {"title": "Geopolitical threat intelligence teams warn of retaliatory wiper activity in the region.", "source": "Mideast Analyst Group", "url": "https://news.google.com/search?q=Middle+East+wiper+malware+cyberattack"}
-            ]
-        }
-        self.live_articles = mocks.get(self.current_scenario, mocks["standard"])
+        self.live_articles = [
+            {"title": "Global cyber telemetry reports low-intensity baseline scanning across corporate networks.", "source": "Cyber Sentinel Feed", "url": "https://news.google.com/"},
+            {"title": "Security analysts identify new automated botnet targeting vulnerable IoT routers.", "source": "Infosec Wire", "url": "https://news.google.com/"},
+            {"title": "Ransomware groups target corporate software supply chains with phishing campaigns.", "source": "Threat Ledger", "url": "https://news.google.com/"},
+            {"title": "Cybersecurity alerts issued as critical energy routers in Ukraine report wiper malware probes.", "source": "Kiev Intel Dispatch", "url": "https://news.google.com/"},
+            {"title": "State-backed threat groups coordinate volumetric DDoS floods against Baltic defense mainframes.", "source": "EuroDef Observer", "url": "https://news.google.com/"},
+            {"title": "Maritime logistics hubs in the Philippines report automated SCADA scans on routing perimeters.", "source": "Manila Tech Gazette", "url": "https://news.google.com/"},
+            {"title": "Water command systems in Israel detect volumetric port floods originating from proxy nodes.", "source": "Tel Aviv Cyber News", "url": "https://news.google.com/"}
+        ]
         self.last_gdelt_fetch_time = time.time()
+        if not self.dynamic_hotspots:
+            self.dynamic_hotspots = [
+                {"id": "ukraine_conflict", "name": "Eastern Europe Tensions"},
+                {"id": "south_china_sea", "name": "South China Sea Probes"},
+                {"id": "middle_east", "name": "Middle East Cyber Exchanges"}
+            ]
 
     def extract_countries(self, title: str) -> List[str]:
         """Parses article titles to identify which countries are named"""
@@ -222,7 +203,6 @@ class CYWARSimulator:
         return matched
 
     def generate_event(self) -> Dict[str, Any]:
-        scenario = SCENARIOS[self.current_scenario]
         
         # Re-fetch news every 120 seconds
         if not self.live_articles or (time.time() - self.last_gdelt_fetch_time > 120):
@@ -253,8 +233,15 @@ class CYWARSimulator:
             headline = article.get("title", "")
             self.current_headline = headline
             
+            # Get the current hotspot name
+            hotspot_name = None
+            for hs in self.dynamic_hotspots:
+                if hs.get("id") == self.current_scenario:
+                    hotspot_name = hs.get("name")
+                    break
+            
             # Extract exact attack from news
-            extracted = self.llm_extractor.extract_attack_from_news(headline, COUNTRIES)
+            extracted = self.llm_extractor.extract_attack_from_news(headline, COUNTRIES, hotspot_name)
             if extracted:
                 event = {
                     "timestamp": datetime.now().strftime("%H:%M:%S"),
@@ -266,11 +253,15 @@ class CYWARSimulator:
                     "industry": extracted.get("industry", "Infrastructure"),
                     "type": extracted.get("type", "Advanced Persistent Threat"),
                     "severity": extracted.get("severity", "HIGH"),
+                    "political_context": extracted.get("political_context", ""),
+                    "threat_actor": extracted.get("threat_actor", "Unknown State Actor"),
                     "scenario": self.current_scenario
                 }
+                
                 self.attack_history.append(event)
                 if len(self.attack_history) > self.max_history_len:
                     self.attack_history = self.attack_history[-self.max_history_len:]
+                
                 return event
                 
         # If no LLM output or no news, we DO NOT generate fake attacks.

@@ -44,6 +44,7 @@ export default function App() {
   const [isBackendConnected, setIsBackendConnected] = useState(false);
   const [countries, setCountries] = useState(FALLBACK_COUNTRIES);
   const [articles, setArticles] = useState([]);
+  const [dynamicScenarios, setDynamicScenarios] = useState([]);
   const [isMuted, setIsMuted] = useState(true);
   const [playbackCursor, setPlaybackCursor] = useState(null);
   
@@ -91,6 +92,9 @@ export default function App() {
         setAnalysis(data.analysis);
         if (data.articles) {
           setArticles(data.articles);
+        }
+        if (data.dynamic_scenarios) {
+          setDynamicScenarios(data.dynamic_scenarios);
         }
         setIsBackendConnected(true);
         stopLocalSimulation();
@@ -431,6 +435,7 @@ export default function App() {
                 analysis={analysis}
                 activeScenario={activeScenario}
                 onScenarioChange={handleScenarioChange}
+                dynamicScenarios={dynamicScenarios}
                 isLoading={isLoading}
               />
             </div>
