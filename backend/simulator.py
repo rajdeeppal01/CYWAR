@@ -1,4 +1,3 @@
-import random
 import time
 import requests
 from datetime import datetime
@@ -204,7 +203,9 @@ class CYWARSimulator:
                     self.attack_history = self.attack_history[-self.max_history_len:]
                 
                 if self.live_articles:
-                    self.current_headline = random.choice(self.live_articles).get("title", "")
+                    article = self.live_articles.pop(0)
+                    self.live_articles.append(article)
+                    self.current_headline = article.get("title", "")
                 
                 return event
             else:

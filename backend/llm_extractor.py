@@ -1,6 +1,5 @@
 import os
 import json
-import random
 
 try:
     import google.generativeai as genai

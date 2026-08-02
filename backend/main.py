@@ -1,5 +1,4 @@
 import json
-import random
 import asyncio
 from datetime import datetime
 from pydantic import BaseModel
@@ -114,8 +113,8 @@ async def event_generator():
                 }
                 yield f"data: {json.dumps(packet_update)}\n\n"
             
-            # Random delay between 0.3s and 1.2s to simulate real-time packet flows
-            await asyncio.sleep(random.uniform(0.3, 1.2))
+            # Fixed delay to simulate packet flows without randomness
+            await asyncio.sleep(0.5)
             
         except asyncio.CancelledError:
             print("[SSE CONNECTION] Client disconnected")
