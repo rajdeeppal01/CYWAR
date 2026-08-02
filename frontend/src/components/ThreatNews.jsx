@@ -29,7 +29,7 @@ const ThreatNews = React.memo(function ThreatNews({ articles, activeScenario }) 
         ) : (
           articles.map((item, idx) => (
             <div 
-              key={idx} 
+              key={`${item.title}-${idx}`} 
               className="flex flex-col gap-xs pad-bottom-sm border-b border-white-trans-5 last:border-b-0 last:pad-bottom-0"
             >
               <div className="flex justify-between items-start gap-xs">
