@@ -79,31 +79,6 @@ async def get_status():
         "articles": simulator.live_articles[:5]
     }
 
-class LogIngest(BaseModel):
-    src: str
-    dest: str
-    port: int
-    severity: str
-    type: str
-
-@app.post("/api/ingest")
-async def ingest_log(log: LogIngest):
-    if simulator.current_scenario != "enterprise":
-        raise HTTPException(status_code=400, detail="Backend must be in Enterprise scenario mode to accept logs.")
-    
-    event = {
-        "timestamp": datetime.now().strftime("%H:%M:%S"),
-        "src": log.src,
-        "dest": log.dest,
-        "src_name": COUNTRIES.get(log.src, log.src),
-        "dest_name": COUNTRIES.get(log.dest, log.dest),
-        "port": log.port,
-        "severity": log.severity,
-        "type": log.type
-    }
-    simulator.ingestion_queue.append(event)
-    return {"status": "success", "message": "Log ingested"}
-
 async def event_generator():
     """Generates real-time packet flows and periodic AI forecasts"""
     last_analysis_time = 0

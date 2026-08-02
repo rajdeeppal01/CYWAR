@@ -5,8 +5,7 @@ const SCENARIOS = [
   { id: 'standard', name: 'Background Noise', icon: Activity },
   { id: 'eastern_europe', name: 'Eastern Europe', icon: Shield },
   { id: 'south_china_sea', name: 'South China Sea', icon: Globe },
-  { id: 'middle_east', name: 'Middle East', icon: AlertTriangle },
-  { id: 'enterprise', name: 'Enterprise (Real Logs)', icon: Database }
+  { id: 'middle_east', name: 'Middle East', icon: AlertTriangle }
 ];
 
 const ForecastPanel = React.memo(function ForecastPanel({ metrics, selectedCountry, analysis, activeScenario, onScenarioChange, isLoading }) {

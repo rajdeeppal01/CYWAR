@@ -385,7 +385,7 @@ export default function App() {
             {/* Audio Toggle */}
             <button 
               onClick={() => setIsMuted(audioEngine.toggleMute())}
-              className="ml-2 pad-xs rounded text-slate-400 hover:text-[var(--neon-cyan)] transition-colors border border-transparent hover:border-white-trans-10"
+              className="ml-2 pad-xs rounded text-slate-400 bg-transparent hover:text-[var(--neon-cyan)] transition-colors border border-transparent hover:border-white-trans-10"
               title="Toggle Audio"
             >
               {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
