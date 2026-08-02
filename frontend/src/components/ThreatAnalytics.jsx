@@ -4,7 +4,7 @@ import { Target, Zap } from 'lucide-react';
 export default function ThreatAnalytics({ packets, countries }) {
   const stats = useMemo(() => {
     if (!packets || packets.length === 0) {
-      return { attackers: [], victims: [] };
+      return { attackers: [], victims: [], actors: [] };
     }
 
     const srcCounts = {};
