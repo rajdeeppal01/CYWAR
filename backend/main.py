@@ -1,6 +1,8 @@
 import json
 import random
 import asyncio
+from datetime import datetime
+from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -77,6 +79,31 @@ async def get_status():
         "articles": simulator.live_articles[:5]
     }
 
+class LogIngest(BaseModel):
+    src: str
+    dest: str
+    port: int
+    severity: str
+    type: str
+
+@app.post("/api/ingest")
+async def ingest_log(log: LogIngest):
+    if simulator.current_scenario != "enterprise":
+        raise HTTPException(status_code=400, detail="Backend must be in Enterprise scenario mode to accept logs.")
+    
+    event = {
+        "timestamp": datetime.now().strftime("%H:%M:%S"),
+        "src": log.src,
+        "dest": log.dest,
+        "src_name": COUNTRIES.get(log.src, log.src),
+        "dest_name": COUNTRIES.get(log.dest, log.dest),
+        "port": log.port,
+        "severity": log.severity,
+        "type": log.type
+    }
+    simulator.ingestion_queue.append(event)
+    return {"status": "success", "message": "Log ingested"}
+
 async def event_generator():
     """Generates real-time packet flows and periodic AI forecasts"""
     last_analysis_time = 0
@@ -106,13 +133,14 @@ async def event_generator():
                 yield f"data: {json.dumps(state_update)}\n\n"
             
             # Send the individual attack packet event to draw on the map
-            packet_update = {
-                "type": "attack_packet",
-                "data": event
-            }
-            yield f"data: {json.dumps(packet_update)}\n\n"
+            if event:
+                packet_update = {
+                    "type": "attack_packet",
+                    "data": event
+                }
+                yield f"data: {json.dumps(packet_update)}\n\n"
             
-            # Random delay between 0.3s and 1.2s to simulate real-time packet packet flows
+            # Random delay between 0.3s and 1.2s to simulate real-time packet flows
             await asyncio.sleep(random.uniform(0.3, 1.2))
             
         except asyncio.CancelledError:

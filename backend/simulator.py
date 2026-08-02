@@ -103,6 +103,15 @@ SCENARIOS = {
             "Petrochemical facilities report emergency system shut-downs",
             "Cyber command issues red alert over regional supervisory control networks"
         ]
+    },
+    "enterprise": {
+        "name": "Enterprise (Real Logs)",
+        "description": "Live ingestion of external security logs via API.",
+        "attacks": [],
+        "headlines": [
+            "Enterprise logging mode activated",
+            "Awaiting external SIEM payload injection"
+        ]
     }
 }
 
@@ -115,6 +124,7 @@ class CYWARSimulator:
         self.current_scenario = "standard"
         self.attack_history = []
         self.max_history_len = 1000
+        self.ingestion_queue = []
         self.live_articles = []
         self.last_gdelt_fetch_time = 0
         self.current_headline = "Awaiting first live GDELT stream handshake..."
@@ -134,7 +144,8 @@ class CYWARSimulator:
             "standard": 'cyberattack OR cybersecurity',
             "eastern_europe": '(russia OR ukraine OR poland) AND (cyberattack OR cyberwarfare OR hacker OR military)',
             "south_china_sea": '(china OR philippines OR vietnam OR taiwan) AND (cyberattack OR cyberwarfare OR hacker OR military)',
-            "middle_east": '(iran OR israel) AND (cyberattack OR cyberwarfare OR hacker OR military)'
+            "middle_east": '(iran OR israel) AND (cyberattack OR cyberwarfare OR hacker OR military)',
+            "enterprise": 'cyberattack OR cybersecurity'
         }
         
         query = query_map.get(self.current_scenario, query_map["standard"])
@@ -220,6 +231,16 @@ class CYWARSimulator:
     def generate_event(self) -> Dict[str, Any]:
         scenario = SCENARIOS[self.current_scenario]
         
+        # In Enterprise mode, we consume from the ingestion queue instead of synthesizing
+        if self.current_scenario == "enterprise":
+            if len(self.ingestion_queue) > 0:
+                event = self.ingestion_queue.pop(0)
+                self.attack_history.append(event)
+                if len(self.attack_history) > self.max_history_len:
+                    self.attack_history = self.attack_history[-self.max_history_len:]
+                return event
+            return None
+
         # Re-fetch news every 120 seconds
         if not self.live_articles or (time.time() - self.last_gdelt_fetch_time > 120):
             self.fetch_gdelt_feed()
