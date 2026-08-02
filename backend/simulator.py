@@ -191,25 +191,53 @@ class CYWARSimulator:
         if not self.live_articles or (time.time() - self.last_gdelt_fetch_time > 120):
             self.fetch_gdelt_feed()
 
-        # In standard mode, rely purely on DShield real-time OSINT
+        # In standard mode, mix DShield OSINT and live news extraction
         if self.current_scenario == "standard":
-            event = self.osint_feed.get_real_background_event(list(COUNTRIES.keys()))
-            if event:
-                event["src_name"] = COUNTRIES.get(event["src"], "Unknown")
-                event["dest_name"] = COUNTRIES.get(event["dest"], "Unknown")
+            event = None
+            if not hasattr(self, '_news_counter'):
+                self._news_counter = 0
+            self._news_counter += 1
+            
+            # Every 3rd packet, try to extract an attack from live news to reduce honeypot spam
+            if self._news_counter % 3 == 0 and self.live_articles:
+                article = self.live_articles.pop(0)
+                self.live_articles.append(article)
+                self.current_headline = article.get("title", "")
                 
+                extracted = self.llm_extractor.extract_attack_from_news(self.current_headline, COUNTRIES, None)
+                if extracted:
+                    event = {
+                        "timestamp": datetime.now().strftime("%H:%M:%S"),
+                        "src": extracted["src"],
+                        "src_name": COUNTRIES.get(extracted["src"], "Unknown"),
+                        "dest": extracted["dest"],
+                        "dest_name": COUNTRIES.get(extracted["dest"], "Unknown"),
+                        "port": int(extracted.get("port", 443)),
+                        "industry": extracted.get("industry", "Global Intelligence"),
+                        "type": extracted.get("type", "Advanced Persistent Threat"),
+                        "severity": extracted.get("severity", "HIGH"),
+                        "political_context": extracted.get("political_context", ""),
+                        "threat_actor": extracted.get("threat_actor", "Unknown State Actor"),
+                        "scenario": self.current_scenario
+                    }
+                    
+            # Fallback to honeypot if not a news tick or if news extraction fails
+            if not event:
+                event = self.osint_feed.get_real_background_event(list(COUNTRIES.keys()))
+                if event:
+                    event["src_name"] = COUNTRIES.get(event["src"], "Unknown")
+                    event["dest_name"] = COUNTRIES.get(event["dest"], "Unknown")
+                    if self.live_articles:
+                        article = self.live_articles.pop(0)
+                        self.live_articles.append(article)
+                        self.current_headline = article.get("title", "")
+
+            if event:
                 self.attack_history.append(event)
                 if len(self.attack_history) > self.max_history_len:
                     self.attack_history = self.attack_history[-self.max_history_len:]
-                
-                if self.live_articles:
-                    article = self.live_articles.pop(0)
-                    self.live_articles.append(article)
-                    self.current_headline = article.get("title", "")
-                
                 return event
             else:
-                # If OSINT fails or rate limits, don't generate fake packets
                 return None
                 
         # In Geopolitical mode, rely purely on LLM extracting from real news

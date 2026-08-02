@@ -50,10 +50,10 @@ export default function TimelineSlider({ packets, playbackCursor, setPlaybackCur
   if (totalPackets < 20) return null;
 
   return (
-    <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-[90%] max-w-4xl bg-[#06070d]/95 backdrop-blur-md border border-[var(--neon-cyan)]/30 pad-md rounded-lg flex flex-col gap-3 z-50 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
-      <div className="flex justify-between items-center text-sm font-mono text-slate-300">
+    <div className="cyber-panel pad-md flex flex-col gap-sm w-full">
+      <div className="flex justify-between items-center text-sm font-mono text-slate-300 border-b border-white-trans-5 pb-2">
         <div className="flex items-center gap-2">
-          <button onClick={handlePlayPause} className="hover:text-white transition-colors">
+          <button onClick={handlePlayPause} className="hover:text-white transition-colors bg-white-trans-5 p-1 rounded">
             {isPlaying && playbackCursor === null ? <Pause size={14} /> : <Play size={14} className="text-[var(--neon-cyan)]" />}
           </button>
           <span>{playbackCursor === null ? 'LIVE' : `HISTORICAL: -${totalPackets - currentIdx} pkts`}</span>

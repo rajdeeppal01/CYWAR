@@ -300,6 +300,13 @@ export default function App() {
           {/* RIGHT SIDE: Anomaly prediction selectors & Analytics */}
           <div className="col-span-4 flex flex-col justify-start gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
             <div style={{ flexShrink: 0 }}>
+              <TimelineSlider 
+                packets={packets} 
+                playbackCursor={playbackCursor} 
+                setPlaybackCursor={setPlaybackCursor} 
+              />
+            </div>
+            <div style={{ flexShrink: 0 }}>
               <ForecastPanel 
                 metrics={metrics}
                 selectedCountry={selectedCountry}
@@ -326,13 +333,6 @@ export default function App() {
           countryName={countries[selectedCountry] || selectedCountry}
           packets={visiblePackets}
           onClose={() => setSelectedCountry(null)}
-        />
-
-        {/* Timeline Slider Overlay */}
-        <TimelineSlider 
-          packets={packets} 
-          playbackCursor={playbackCursor} 
-          setPlaybackCursor={setPlaybackCursor} 
         />
       </div>
     </div>
