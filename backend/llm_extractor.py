@@ -13,7 +13,7 @@ class LLMExtractor:
         if self.api_key and GENAI_AVAILABLE:
             try:
                 genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel("gemini-1.5-flash")
+                self.model = genai.GenerativeModel("gemini-flash-latest")
                 self.api_active = True
             except Exception:
                 self.api_active = False

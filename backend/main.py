@@ -1,5 +1,7 @@
 import json
 import asyncio
+from dotenv import load_dotenv
+load_dotenv()
 from datetime import datetime
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Request
