@@ -172,25 +172,9 @@ class CYWARSimulator:
                         print(f"[News Engine] Discovered hotspots: {hotspots}")
                     return
         except Exception as e:
-            print(f"[News Engine Warning] Failed to reach Google News RSS API: {e}. Utilizing internal mock data feeds.")
+            print(f"[News Engine Warning] Failed to reach Google News RSS API: {e}. Operating with no live news data.")
         
-        # Local mock articles if API is down
-        self.live_articles = [
-            {"title": "Global cyber telemetry reports low-intensity baseline scanning across corporate networks.", "source": "Cyber Sentinel Feed", "url": "https://news.google.com/"},
-            {"title": "Security analysts identify new automated botnet targeting vulnerable IoT routers.", "source": "Infosec Wire", "url": "https://news.google.com/"},
-            {"title": "Ransomware groups target corporate software supply chains with phishing campaigns.", "source": "Threat Ledger", "url": "https://news.google.com/"},
-            {"title": "Cybersecurity alerts issued as critical energy routers in Ukraine report wiper malware probes.", "source": "Kiev Intel Dispatch", "url": "https://news.google.com/"},
-            {"title": "State-backed threat groups coordinate volumetric DDoS floods against Baltic defense mainframes.", "source": "EuroDef Observer", "url": "https://news.google.com/"},
-            {"title": "Maritime logistics hubs in the Philippines report automated SCADA scans on routing perimeters.", "source": "Manila Tech Gazette", "url": "https://news.google.com/"},
-            {"title": "Water command systems in Israel detect volumetric port floods originating from proxy nodes.", "source": "Tel Aviv Cyber News", "url": "https://news.google.com/"}
-        ]
         self.last_gdelt_fetch_time = time.time()
-        if not self.dynamic_hotspots:
-            self.dynamic_hotspots = [
-                {"id": "ukraine_conflict", "name": "Eastern Europe Tensions"},
-                {"id": "south_china_sea", "name": "South China Sea Probes"},
-                {"id": "middle_east", "name": "Middle East Cyber Exchanges"}
-            ]
 
     def extract_countries(self, title: str) -> List[str]:
         """Parses article titles to identify which countries are named"""
@@ -229,7 +213,9 @@ class CYWARSimulator:
                 
         # In Geopolitical mode, rely purely on LLM extracting from real news
         if self.live_articles:
-            article = random.choice(self.live_articles)
+            # We don't want purely random, we'll iterate or pop
+            article = self.live_articles.pop(0)
+            self.live_articles.append(article) # Rotate
             headline = article.get("title", "")
             self.current_headline = headline
             
@@ -268,25 +254,35 @@ class CYWARSimulator:
         return None
 
     def get_anomaly_metrics(self) -> Dict[str, Any]:
-        """Calculates volume metrics and includes the live GDELT news feed headline"""
-        scenario = SCENARIOS[self.current_scenario]
+        """Calculates deterministic volume metrics based on live attack history and hotspots."""
+        scenario_name = "Global Monitor"
+        scenario_desc = "Baseline telemetry active."
         
-        # Determine anomaly Z-scores based on scenario type
-        if self.current_scenario == "standard":
-            z_score = random.uniform(0.1, 1.4)
+        for hs in self.dynamic_hotspots:
+            if hs.get("id") == self.current_scenario:
+                scenario_name = hs.get("name")
+                scenario_desc = f"Tracking intelligence on {scenario_name}"
+                break
+                
+        # Deterministic Z-score based on volume of history
+        # Base expected attacks ~5 per tick. If we have more in history, anomaly rises.
+        current_volume = len(self.attack_history)
+        
+        if current_volume < 10:
+            z_score = 0.5 + (current_volume / 20.0)
             anomaly_detected = False
             sentiment = 0.05
         else:
-            z_score = random.uniform(2.8, 4.5)
+            z_score = 2.5 + min(2.0, (current_volume - 10) / 40.0)
             anomaly_detected = True
-            sentiment = random.uniform(-0.85, -0.55)
+            sentiment = max(-1.0, -0.5 - ((current_volume - 10) / 100.0))
             
         risk_score = 15 if not anomaly_detected else int(z_score * 20 + abs(sentiment) * 10)
         risk_score = min(98, max(5, risk_score))
         
         return {
-            "scenario_name": scenario["name"],
-            "scenario_desc": scenario["description"],
+            "scenario_name": scenario_name,
+            "scenario_desc": scenario_desc,
             "z_score": round(z_score, 2),
             "anomaly_detected": anomaly_detected,
             "news_headline": self.current_headline,

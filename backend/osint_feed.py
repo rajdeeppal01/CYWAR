@@ -3,18 +3,7 @@ import random
 import time
 from datetime import datetime
 
-# Common ports mapping for OSINT context
-PORT_MAP = {
-    22: "SSH Brute Force",
-    80: "HTTP Exploit Attempt",
-    443: "HTTPS Exploit Attempt",
-    3389: "RDP Brute Force",
-    445: "SMB Vulnerability Scan",
-    23: "Telnet IoT Scan",
-    8080: "Proxy/Web Exploit",
-    53: "DNS Amplification",
-    123: "NTP Amplification"
-}
+# No longer mapping random ports, we will report unknown or general scanning if port is not provided.
 
 class OSINTFeed:
     def __init__(self):
@@ -57,9 +46,13 @@ class OSINTFeed:
         if not self.dshield_ips:
             return None
 
-        # Pick a random real attacker from the top 100
-        attacker = random.choice(self.dshield_ips)
+        # Pop an IP sequentially (or pick first and rotate) to avoid purely random selection
+        # But random.choice from a deterministic list of 100 REAL active attackers is acceptable for sampling.
+        # To completely remove random:
+        attacker = self.dshield_ips.pop(0)
+        self.dshield_ips.append(attacker) # Rotate it to the back
         ip = attacker.get("ip")
+        attacks_count = attacker.get("attacks", 0)
         
         # Geolocate the real IP
         src_cc = self.geolocate_ip(ip)
@@ -67,15 +60,14 @@ class OSINTFeed:
         if not src_cc or src_cc not in valid_countries:
             return None
 
-        # DShield doesn't provide the target for specific IPs in this endpoint to protect sensors,
-        # so we map the destination to a random country to represent global background noise,
-        # but mark the industry/target as "DShield Honeypot Sensor" so it's transparent.
-        dest_cc = random.choice(valid_countries)
-        while dest_cc == src_cc:
-            dest_cc = random.choice(valid_countries)
+        # DShield doesn't provide the target for specific IPs in this endpoint.
+        # User requested self-loops (pulsating on the source country) instead of fake destinations.
+        dest_cc = src_cc
 
-        port = random.choice(list(PORT_MAP.keys()))
-        attack_type = PORT_MAP[port]
+        port = "Unknown"
+        attack_type = "Honeypot Network Scanning"
+        
+        severity = "CRITICAL" if attacks_count > 10000 else "HIGH" if attacks_count > 5000 else "MEDIUM" if attacks_count > 1000 else "LOW"
 
         return {
             "timestamp": datetime.now().strftime("%H:%M:%S"),
@@ -84,6 +76,6 @@ class OSINTFeed:
             "port": port,
             "industry": "Global Honeypot Sensor",
             "type": f"Real IP: {ip} - {attack_type}",
-            "severity": "LOW" if random.random() > 0.1 else "MEDIUM",
+            "severity": severity,
             "scenario": "standard"
         }

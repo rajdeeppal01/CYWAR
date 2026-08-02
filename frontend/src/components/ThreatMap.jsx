@@ -62,6 +62,7 @@ const SEVERITY_COLORS = {
 export default function ThreatMap({ packets, metrics, selectedCountry, onSelectCountry }) {
   // Generate curve path between two nodes (quadratic bezier)
   const getCurvePath = (src, dest) => {
+    if (src === dest) return "";
     const s = NODES[src];
     const d = NODES[dest];
     if (!s || !d) return "";
@@ -268,6 +269,28 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
                   style={{
                     animation: 'dash 2s linear infinite'
                   }}
+                />
+              );
+            })}
+          </g>
+
+          {/* Self-loop attacks (pulsing rings on source node) */}
+          <g>
+            {packets.filter(p => p.src === p.dest).map((pkt, idx) => {
+              const node = NODES[pkt.src];
+              if (!node) return null;
+              const color = SEVERITY_COLORS[pkt.severity] || "var(--neon-cyan)";
+              return (
+                <circle
+                  key={`selfloop-${pkt.timestamp}-${idx}`}
+                  cx={node.x}
+                  cy={node.y}
+                  r="6"
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="2"
+                  className="animate-ping"
+                  style={{ animationDuration: '2s' }}
                 />
               );
             })}
