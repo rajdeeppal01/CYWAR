@@ -5,9 +5,7 @@ export default function TimelineSlider({ packets, playbackCursor, setPlaybackCur
   const [isPlaying, setIsPlaying] = useState(true);
 
   const totalPackets = packets.length;
-  // If we don't have enough history, don't show the slider yet
-  if (totalPackets < 20) return null;
-
+  // We must call hooks before any early return.
   const currentIdx = playbackCursor === null ? totalPackets - 1 : playbackCursor;
 
   const handleSliderChange = (e) => {
@@ -47,6 +45,9 @@ export default function TimelineSlider({ packets, playbackCursor, setPlaybackCur
     }
     return () => clearInterval(interval);
   }, [isPlaying, playbackCursor, totalPackets, setPlaybackCursor]);
+
+  // If we don't have enough history, don't show the slider yet
+  if (totalPackets < 20) return null;
 
   return (
     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-1/2 bg-[#06070d]/90 backdrop-blur border border-white-trans-10 pad-sm rounded flex flex-col gap-2 z-40 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
