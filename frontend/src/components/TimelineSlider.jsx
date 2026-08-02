@@ -50,8 +50,8 @@ export default function TimelineSlider({ packets, playbackCursor, setPlaybackCur
   if (totalPackets < 20) return null;
 
   return (
-    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-1/2 bg-[#06070d]/90 backdrop-blur border border-white-trans-10 pad-sm rounded flex flex-col gap-2 z-40 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
-      <div className="flex justify-between items-center text-xs font-mono text-slate-400">
+    <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-[90%] max-w-4xl bg-[#06070d]/95 backdrop-blur-md border border-[var(--neon-cyan)]/30 pad-md rounded-lg flex flex-col gap-3 z-50 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
+      <div className="flex justify-between items-center text-sm font-mono text-slate-300">
         <div className="flex items-center gap-2">
           <button onClick={handlePlayPause} className="hover:text-white transition-colors">
             {isPlaying && playbackCursor === null ? <Pause size={14} /> : <Play size={14} className="text-[var(--neon-cyan)]" />}
