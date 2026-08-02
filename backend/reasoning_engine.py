@@ -35,6 +35,12 @@ LOCAL_BRIEFINGS = {
         "primary_actors": ["MuddyWater (APT33)", "Regional Cyber Units"],
         "critical_sectors": ["Public Water Distribution", "Oil Refineries", "Air Defense Systems"],
         "tactical_assessment": "Isolate public water valve controls from external web access and verify local backup valves."
+    },
+    "enterprise": {
+        "summary": "ENTERPRISE INGESTION ACTIVE: The system is currently analyzing live, ingested external security logs. Dynamic telemetry scanning and traffic patterns are based entirely on the external datasets pushed via the /api/ingest endpoint. Please monitor the incoming stream to assess active organizational risk vectors in real-time.",
+        "primary_actors": ["Unknown (Live Ingestion)", "External Scanners"],
+        "critical_sectors": ["Enterprise Infrastructure", "Cloud Instances"],
+        "tactical_assessment": "Continuously monitor the live ingestion stream for spikes in critical severity events."
     }
 }
 

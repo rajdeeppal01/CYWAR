@@ -3,6 +3,8 @@ import time
 import requests
 from datetime import datetime
 from typing import Dict, List, Any
+from osint_feed import OSINTFeed
+from llm_extractor import LLMExtractor
 
 # ISO Codes mapping for display
 COUNTRIES = {
@@ -121,14 +123,17 @@ PORTS = [80, 443, 22, 8080, 3389, 502, 102, 4840]
 
 class CYWARSimulator:
     def __init__(self):
-        self.current_scenario = "standard"
         self.attack_history = []
         self.max_history_len = 1000
-        self.ingestion_queue = []
+        self.current_scenario = "standard"
         self.live_articles = []
         self.last_gdelt_fetch_time = 0
-        self.current_headline = "Awaiting first live GDELT stream handshake..."
-        self.current_sentiment = 0.05
+        self.current_headline = "Awaiting live telemetry..."
+        
+        self.ingestion_queue = []
+        
+        self.osint_feed = OSINTFeed()
+        self.llm_extractor = LLMExtractor()
         self.fetch_gdelt_feed()
 
     def set_scenario(self, scenario_id: str):
@@ -245,71 +250,53 @@ class CYWARSimulator:
         if not self.live_articles or (time.time() - self.last_gdelt_fetch_time > 120):
             self.fetch_gdelt_feed()
 
-        # Try to pull headline from GDELT article feed
-        headline = None
-        src = None
-        dest = None
-        
+        # In standard mode, rely purely on DShield real-time OSINT
+        if self.current_scenario == "standard":
+            event = self.osint_feed.get_real_background_event(list(COUNTRIES.keys()))
+            if event:
+                event["src_name"] = COUNTRIES.get(event["src"], "Unknown")
+                event["dest_name"] = COUNTRIES.get(event["dest"], "Unknown")
+                
+                self.attack_history.append(event)
+                if len(self.attack_history) > self.max_history_len:
+                    self.attack_history = self.attack_history[-self.max_history_len:]
+                
+                if self.live_articles:
+                    self.current_headline = random.choice(self.live_articles).get("title", "")
+                
+                return event
+            else:
+                # If OSINT fails or rate limits, don't generate fake packets
+                return None
+                
+        # In Geopolitical mode, rely purely on LLM extracting from real news
         if self.live_articles:
             article = random.choice(self.live_articles)
             headline = article.get("title", "")
             self.current_headline = headline
             
-            # Try to map packet flow endpoints dynamically from the headline text
-            matched = self.extract_countries(headline)
-            if len(matched) >= 2:
-                src = matched[0]
-                dest = matched[1]
-            elif len(matched) == 1:
-                src = matched[0]
-                # Pick a random other target node
-                active_codes = list(COUNTRIES.keys())
-                dest = random.choice(active_codes)
-                while dest == src:
-                    dest = random.choice(active_codes)
-        
-        # Fallback to templates if GDELT returned nothing or no country could be parsed
-        if not src or not dest:
-            is_scenario_attack = self.current_scenario != "standard" and random.random() < 0.7
-            if is_scenario_attack:
-                campaign = random.choice(scenario["attacks"])
-                src = campaign["src"]
-                dest = campaign["dest"]
-            else:
-                src = random.choice(list(COUNTRIES.keys()))
-                dest = random.choice(list(COUNTRIES.keys()))
-                while dest == src:
-                    dest = random.choice(list(COUNTRIES.keys()))
-
-        # If GDELT API is down, use template headline fallbacks
-        if not headline:
-            headline = random.choice(scenario["headlines"])
-            self.current_headline = headline
-
-        # Set packet parameters
-        port = random.choice(PORTS)
-        industry = random.choice(INDUSTRIES)
-        attack_type = random.choice(ATTACK_TYPES)
-        severity = random.choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"])
-        
-        event = {
-            "timestamp": datetime.now().strftime("%H:%M:%S"),
-            "src": src,
-            "src_name": COUNTRIES.get(src, "Unknown"),
-            "dest": dest,
-            "dest_name": COUNTRIES.get(dest, "Unknown"),
-            "port": port,
-            "industry": industry,
-            "type": attack_type,
-            "severity": severity,
-            "scenario": self.current_scenario
-        }
-        
-        self.attack_history.append(event)
-        if len(self.attack_history) > self.max_history_len:
-            self.attack_history.pop(0)
-            
-        return event
+            # Extract exact attack from news
+            extracted = self.llm_extractor.extract_attack_from_news(headline, COUNTRIES)
+            if extracted:
+                event = {
+                    "timestamp": datetime.now().strftime("%H:%M:%S"),
+                    "src": extracted["src"],
+                    "src_name": COUNTRIES.get(extracted["src"], "Unknown"),
+                    "dest": extracted["dest"],
+                    "dest_name": COUNTRIES.get(extracted["dest"], "Unknown"),
+                    "port": int(extracted.get("port", 443)),
+                    "industry": extracted.get("industry", "Infrastructure"),
+                    "type": extracted.get("type", "Advanced Persistent Threat"),
+                    "severity": extracted.get("severity", "HIGH"),
+                    "scenario": self.current_scenario
+                }
+                self.attack_history.append(event)
+                if len(self.attack_history) > self.max_history_len:
+                    self.attack_history = self.attack_history[-self.max_history_len:]
+                return event
+                
+        # If no LLM output or no news, we DO NOT generate fake attacks.
+        return None
 
     def get_anomaly_metrics(self) -> Dict[str, Any]:
         """Calculates volume metrics and includes the live GDELT news feed headline"""
