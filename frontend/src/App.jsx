@@ -5,7 +5,10 @@ import ThreatStream from './components/ThreatStream';
 import AIBriefing from './components/AIBriefing';
 import ThreatAnalytics from './components/ThreatAnalytics';
 import ThreatNews from './components/ThreatNews';
-import { Shield, Radio, Terminal, Cpu } from 'lucide-react';
+import DrillDownPanel from './components/DrillDownPanel';
+import TimelineSlider from './components/TimelineSlider';
+import { Shield, Radio, Terminal, Cpu, Volume2, VolumeX } from 'lucide-react';
+import { audioEngine } from './utils/audioEngine';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000/api';
 
@@ -41,6 +44,8 @@ export default function App() {
   const [isBackendConnected, setIsBackendConnected] = useState(false);
   const [countries, setCountries] = useState(FALLBACK_COUNTRIES);
   const [articles, setArticles] = useState([]);
+  const [isMuted, setIsMuted] = useState(true);
+  const [playbackCursor, setPlaybackCursor] = useState(null);
   
   const eventSourceRef = useRef(null);
   const mockIntervalRef = useRef(null);
@@ -185,12 +190,14 @@ export default function App() {
       try {
         const payload = JSON.parse(event.data);
         if (payload.type === 'attack_packet') {
+          audioEngine.playPacketSound(payload.data.severity);
           setPackets((prev) => {
             const next = [...prev, payload.data];
-            // Keep log stream capped at 150 items to optimize DOM performance
-            return next.slice(-150);
+            // Keep log stream capped at 500 items for historical playback buffer
+            return next.slice(-500);
           });
         } else if (payload.type === 'forecast_update') {
+          audioEngine.setAmbientIntensity(Math.min(payload.metrics.z_score / 4.0, 1.0));
           setMetrics(payload.metrics);
           setAnalysis(payload.analysis);
           if (payload.articles) {
@@ -297,6 +304,8 @@ export default function App() {
     setArticles(localMocks[scenarioId] || localMocks.standard);
   };
 
+  const visiblePackets = playbackCursor === null ? packets : packets.slice(0, Math.max(1, playbackCursor + 1));
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#06070d]">
       {/* Aurora glowing background spheres */}
@@ -373,6 +382,15 @@ export default function App() {
               <span style={{ color: 'var(--text-bright)', fontWeight: 700 }}>TimescaleDB</span>
             </div>
 
+            {/* Audio Toggle */}
+            <button 
+              onClick={() => setIsMuted(audioEngine.toggleMute())}
+              className="ml-2 pad-xs rounded text-slate-400 hover:text-[var(--neon-cyan)] transition-colors border border-transparent hover:border-white-trans-10"
+              title="Toggle Audio"
+            >
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+
           </div>
         </header>
 
@@ -380,10 +398,10 @@ export default function App() {
         <div className="cyber-grid-container">
           
           {/* LEFT SIDE: Map + Live logs + AI Briefing */}
-          <div className="col-span-8 flex flex-col justify-start gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar">
+          <div className="col-span-8 flex flex-col justify-start gap-lg h-full overflow-y-auto pad-right-sm custom-scrollbar relative">
             <div style={{ height: '410px', flexShrink: 0 }}>
               <ThreatMap 
-                packets={packets} 
+                packets={visiblePackets} 
                 metrics={metrics}
                 selectedCountry={selectedCountry} 
                 onSelectCountry={setSelectedCountry} 
@@ -391,7 +409,7 @@ export default function App() {
             </div>
             <div style={{ height: '220px', flexShrink: 0 }}>
               <ThreatStream 
-                packets={packets} 
+                packets={visiblePackets} 
                 filterCountry={selectedCountry} 
               />
             </div>
@@ -417,7 +435,7 @@ export default function App() {
               />
             </div>
             <div style={{ flexShrink: 0 }}>
-              <ThreatAnalytics packets={packets} countries={countries} />
+              <ThreatAnalytics packets={visiblePackets} countries={countries} />
             </div>
             <div style={{ flexShrink: 0 }}>
               <ThreatNews articles={articles} activeScenario={activeScenario} />
@@ -425,6 +443,21 @@ export default function App() {
           </div>
 
         </div>
+
+        {/* Drill Down Overlay Panel */}
+        <DrillDownPanel 
+          countryCode={selectedCountry}
+          countryName={countries[selectedCountry] || selectedCountry}
+          packets={visiblePackets}
+          onClose={() => setSelectedCountry(null)}
+        />
+
+        {/* Timeline Slider Overlay */}
+        <TimelineSlider 
+          packets={packets} 
+          playbackCursor={playbackCursor} 
+          setPlaybackCursor={setPlaybackCursor} 
+        />
       </div>
     </div>
   );
