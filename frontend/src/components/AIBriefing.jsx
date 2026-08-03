@@ -615,28 +615,28 @@ const AIBriefing = React.memo(function AIBriefing({ metrics, analysis, selectedC
 
       {/* Analytics Row for Selected Country */}
       {selectedCountry && analytics && (
-        <div className="flex gap-sm mt-4 mb-2 border-b border-white-trans-5 pb-4">
-          <div className="flex-1 bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col justify-center">
-            <span className="text-[10px] text-slate-500 uppercase font-mono mb-1">Inbound Vol</span>
-            <span className="text-xl font-extrabold text-[var(--neon-orange)] leading-none">{analytics.inboundCount}</span>
+        <div className="flex gap-4 mt-4 mb-2 border-b border-white/10 pb-4">
+          <div className="flex-1 bg-white/5 rounded-lg p-3 border border-white/10 flex flex-col justify-center">
+            <div className="text-[10px] text-slate-500 uppercase font-mono mb-1 tracking-wider">Inbound Vol</div>
+            <div className="text-2xl font-extrabold text-[var(--neon-orange)] leading-none">{analytics.inboundCount}</div>
           </div>
-          <div className="flex-1 bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col justify-center">
-            <span className="text-[10px] text-slate-500 uppercase font-mono mb-1">Outbound Vol</span>
-            <span className="text-xl font-extrabold text-[var(--neon-cyan)] leading-none">{analytics.outboundCount}</span>
+          <div className="flex-1 bg-white/5 rounded-lg p-3 border border-white/10 flex flex-col justify-center">
+            <div className="text-[10px] text-slate-500 uppercase font-mono mb-1 tracking-wider">Outbound Vol</div>
+            <div className="text-2xl font-extrabold text-[var(--neon-cyan)] leading-none">{analytics.outboundCount}</div>
           </div>
           
-          <div className="flex-[1.5] bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col gap-1 overflow-hidden">
-            <span className="text-[10px] text-slate-500 uppercase font-mono border-b border-white-trans-5 pb-1 mb-1">Vulnerable Ports</span>
+          <div className="flex-[1.5] bg-white/5 rounded-lg p-3 border border-white/10 flex flex-col gap-2 overflow-hidden">
+            <div className="text-[10px] text-slate-500 uppercase font-mono border-b border-white/10 pb-1 tracking-wider">Vulnerable Ports</div>
             {analytics.topPorts.length > 0 ? analytics.topPorts.map(([p, c], i) => (
-              <div key={i} className="text-xs flex justify-between items-center"><span className="text-[var(--neon-orange)] font-mono">Port {p}</span><span className="text-slate-500 text-[10px]">{c} hits</span></div>
-            )) : <span className="text-xs text-slate-600 italic">None</span>}
+              <div key={i} className="text-xs flex justify-between items-center"><span className="text-[var(--neon-orange)] font-mono font-bold">Port {p}</span><span className="text-slate-500 text-[10px]">{c} hits</span></div>
+            )) : <div className="text-xs text-slate-600 italic">None</div>}
           </div>
           
-          <div className="flex-[1.5] bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col gap-1 overflow-hidden">
-            <span className="text-[10px] text-slate-500 uppercase font-mono border-b border-white-trans-5 pb-1 mb-1">Top Origins</span>
+          <div className="flex-[1.5] bg-white/5 rounded-lg p-3 border border-white/10 flex flex-col gap-2 overflow-hidden">
+            <div className="text-[10px] text-slate-500 uppercase font-mono border-b border-white/10 pb-1 tracking-wider">Top Origins</div>
             {analytics.topAttackers.length > 0 ? analytics.topAttackers.map(([s, c], i) => (
-              <div key={i} className="text-xs flex justify-between items-center"><span className="text-slate-300 font-mono">{s}</span><span className="text-slate-500 text-[10px]">{c} pkts</span></div>
-            )) : <span className="text-xs text-slate-600 italic">None</span>}
+              <div key={i} className="text-xs flex justify-between items-center"><span className="text-slate-300 font-mono font-bold">{s}</span><span className="text-slate-500 text-[10px]">{c} pkts</span></div>
+            )) : <div className="text-xs text-slate-600 italic">None</div>}
           </div>
         </div>
       )}
