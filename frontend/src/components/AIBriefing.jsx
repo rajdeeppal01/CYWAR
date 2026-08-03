@@ -615,25 +615,27 @@ const AIBriefing = React.memo(function AIBriefing({ metrics, analysis, selectedC
 
       {/* Analytics Row for Selected Country */}
       {selectedCountry && analytics && (
-        <div className="flex gap-md mt-4 mb-2 border-b border-white-trans-5 pb-4">
-          <div className="flex-1">
-            <span className="text-[10px] text-slate-500 uppercase font-mono block">Inbound Vol</span>
-            <span className="text-lg font-bold text-[var(--neon-orange)]">{analytics.inboundCount}</span>
+        <div className="flex gap-sm mt-4 mb-2 border-b border-white-trans-5 pb-4">
+          <div className="flex-1 bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col justify-center">
+            <span className="text-[10px] text-slate-500 uppercase font-mono mb-1">Inbound Vol</span>
+            <span className="text-xl font-extrabold text-[var(--neon-orange)] leading-none">{analytics.inboundCount}</span>
           </div>
-          <div className="flex-1">
-            <span className="text-[10px] text-slate-500 uppercase font-mono block">Outbound Vol</span>
-            <span className="text-lg font-bold text-[var(--neon-cyan)]">{analytics.outboundCount}</span>
+          <div className="flex-1 bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col justify-center">
+            <span className="text-[10px] text-slate-500 uppercase font-mono mb-1">Outbound Vol</span>
+            <span className="text-xl font-extrabold text-[var(--neon-cyan)] leading-none">{analytics.outboundCount}</span>
           </div>
-          <div className="flex-2 flex flex-col gap-1">
-            <span className="text-[10px] text-slate-500 uppercase font-mono block">Vulnerable Ports</span>
+          
+          <div className="flex-[1.5] bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col gap-1 overflow-hidden">
+            <span className="text-[10px] text-slate-500 uppercase font-mono border-b border-white-trans-5 pb-1 mb-1">Vulnerable Ports</span>
             {analytics.topPorts.length > 0 ? analytics.topPorts.map(([p, c], i) => (
-              <div key={i} className="text-xs flex justify-between"><span className="text-[var(--neon-orange)]">Port {p}</span><span className="text-slate-500">{c} hits</span></div>
+              <div key={i} className="text-xs flex justify-between items-center"><span className="text-[var(--neon-orange)] font-mono">Port {p}</span><span className="text-slate-500 text-[10px]">{c} hits</span></div>
             )) : <span className="text-xs text-slate-600 italic">None</span>}
           </div>
-          <div className="flex-2 flex flex-col gap-1">
-            <span className="text-[10px] text-slate-500 uppercase font-mono block">Top Origins</span>
+          
+          <div className="flex-[1.5] bg-white-trans-5 rounded pad-sm border border-white-trans-5 flex flex-col gap-1 overflow-hidden">
+            <span className="text-[10px] text-slate-500 uppercase font-mono border-b border-white-trans-5 pb-1 mb-1">Top Origins</span>
             {analytics.topAttackers.length > 0 ? analytics.topAttackers.map(([s, c], i) => (
-              <div key={i} className="text-xs flex justify-between"><span className="text-slate-300">{s}</span><span className="text-slate-500">{c} pkts</span></div>
+              <div key={i} className="text-xs flex justify-between items-center"><span className="text-slate-300 font-mono">{s}</span><span className="text-slate-500 text-[10px]">{c} pkts</span></div>
             )) : <span className="text-xs text-slate-600 italic">None</span>}
           </div>
         </div>
