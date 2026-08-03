@@ -68,6 +68,15 @@ class OSINTFeed:
         
         severity = "CRITICAL" if attacks_count > 10000 else "HIGH" if attacks_count > 5000 else "MEDIUM" if attacks_count > 1000 else "LOW"
 
+        # Determine a plausible threat actor based on source country
+        actor_map = {
+            "RU": "Sandworm (APT44)",
+            "CN": "Volt Typhoon",
+            "IR": "MuddyWater",
+            "KP": "Lazarus Group"
+        }
+        threat_actor = actor_map.get(src_cc, "Distributed Botnets")
+
         return {
             "timestamp": datetime.now().strftime("%H:%M:%S"),
             "src": src_cc,
@@ -76,5 +85,6 @@ class OSINTFeed:
             "industry": "Global Honeypot Sensor",
             "type": f"Real IP: {ip} - {attack_type}",
             "severity": severity,
-            "scenario": "standard"
+            "scenario": "standard",
+            "threat_actor": threat_actor
         }
