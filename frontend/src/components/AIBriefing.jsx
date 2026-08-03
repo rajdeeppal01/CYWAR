@@ -538,7 +538,7 @@ const COUNTRY_OVERRIDES = {
   }
 };
 
-const AIBriefing = React.memo(function AIBriefing({ metrics, analysis, selectedCountry }) {
+const AIBriefing = React.memo(function AIBriefing({ metrics, analysis, selectedCountry, packets = [] }) {
   
   // Determine active hotspots based on scenario name
   const hotspotRegions = useMemo(() => {
