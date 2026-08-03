@@ -586,18 +586,61 @@ const AIBriefing = React.memo(function AIBriefing({ metrics, analysis, selectedC
     };
   }, [selectedCountry, analysis]);
 
+  // Compute country-specific analytics if selected
+  const analytics = useMemo(() => {
+    if (!packets || packets.length === 0 || !selectedCountry) return null;
+    const inbound = packets.filter(p => p.dest === selectedCountry);
+    const outbound = packets.filter(p => p.src === selectedCountry);
+    const portCounts = {};
+    inbound.forEach(p => { portCounts[p.port] = (portCounts[p.port] || 0) + 1; });
+    const topPorts = Object.entries(portCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const attackerCounts = {};
+    inbound.forEach(p => { attackerCounts[p.src] = (attackerCounts[p.src] || 0) + 1; });
+    const topAttackers = Object.entries(attackerCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    return { inboundCount: inbound.length, outboundCount: outbound.length, topPorts, topAttackers };
+  }, [packets, selectedCountry]);
+
   return (
-    <div className="cyber-panel pad-lg flex flex-col gap-md">
+    <div className="bg-[#0a0a0f] border border-white-trans-10 rounded-xl pad-md shadow-2xl relative overflow-hidden">
+      {/* Background accents */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--neon-purple)] opacity-[0.02] rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+      
       {/* Header */}
       <div className="flex justify-between items-center border-b border-white-trans-5 pad-bottom-sm">
         <h3 className="text-small font-extrabold text-slate-400 tracking-wider flex items-center gap-xs font-sans uppercase">
           <Cpu className="w-icon-sm text-[var(--neon-cyan)] animate-pulse" />
-          {activeContent.title}
+          {activeContent.title || (selectedCountry ? `INTELLIGENCE BRIEFING: ${selectedCountry} REGION` : "GLOBAL CYBER GEOPOLITICAL BREIFING & ANOMALY ANALYSIS")}
         </h3>
       </div>
 
+      {/* Analytics Row for Selected Country */}
+      {selectedCountry && analytics && (
+        <div className="flex gap-md mt-4 mb-2 border-b border-white-trans-5 pb-4">
+          <div className="flex-1">
+            <span className="text-[10px] text-slate-500 uppercase font-mono block">Inbound Vol</span>
+            <span className="text-lg font-bold text-[var(--neon-orange)]">{analytics.inboundCount}</span>
+          </div>
+          <div className="flex-1">
+            <span className="text-[10px] text-slate-500 uppercase font-mono block">Outbound Vol</span>
+            <span className="text-lg font-bold text-[var(--neon-cyan)]">{analytics.outboundCount}</span>
+          </div>
+          <div className="flex-2 flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500 uppercase font-mono block">Vulnerable Ports</span>
+            {analytics.topPorts.length > 0 ? analytics.topPorts.map(([p, c], i) => (
+              <div key={i} className="text-xs flex justify-between"><span className="text-[var(--neon-orange)]">Port {p}</span><span className="text-slate-500">{c} hits</span></div>
+            )) : <span className="text-xs text-slate-600 italic">None</span>}
+          </div>
+          <div className="flex-2 flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500 uppercase font-mono block">Top Origins</span>
+            {analytics.topAttackers.length > 0 ? analytics.topAttackers.map(([s, c], i) => (
+              <div key={i} className="text-xs flex justify-between"><span className="text-slate-300">{s}</span><span className="text-slate-500">{c} pkts</span></div>
+            )) : <span className="text-xs text-slate-600 italic">None</span>}
+          </div>
+        </div>
+      )}
+
       {/* Grid Layout: Wide-Pane 3 Column layout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-md items-start">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-md items-start mt-4">
         
         {/* Column 1: News Alert & Summary (Spans 5/12 cols) */}
         <div className="col-span-5 flex flex-col gap-sm">

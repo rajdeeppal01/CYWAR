@@ -5,7 +5,6 @@ import ThreatStream from './components/ThreatStream';
 import AIBriefing from './components/AIBriefing';
 import ThreatAnalytics from './components/ThreatAnalytics';
 import ThreatNews from './components/ThreatNews';
-import DrillDownPanel from './components/DrillDownPanel';
 import TimelineSlider from './components/TimelineSlider';
 import { Shield, Radio, Terminal, Cpu, Volume2, VolumeX } from 'lucide-react';
 import { audioEngine } from './utils/audioEngine';
@@ -283,32 +282,20 @@ export default function App() {
               />
             </div>
             
-            {!selectedCountry ? (
-              <>
-                <div style={{ height: '220px', flexShrink: 0 }}>
-                  <ThreatStream 
-                    packets={visiblePackets} 
-                    filterCountry={selectedCountry} 
-                  />
-                </div>
-                <div style={{ flexShrink: 0 }}>
-                  <AIBriefing 
-                    metrics={metrics}
-                    analysis={analysis}
-                    selectedCountry={selectedCountry}
-                  />
-                </div>
-              </>
-            ) : (
-              <div style={{ flex: 1, minHeight: 0 }}>
-                <DrillDownPanel 
-                  countryCode={selectedCountry}
-                  countryName={countries[selectedCountry] || selectedCountry}
-                  packets={visiblePackets}
-                  onClose={() => setSelectedCountry(null)}
-                />
-              </div>
-            )}
+            <div style={{ height: '220px', flexShrink: 0 }}>
+              <ThreatStream 
+                packets={visiblePackets} 
+                filterCountry={selectedCountry} 
+              />
+            </div>
+            <div style={{ flexShrink: 0 }}>
+              <AIBriefing 
+                metrics={metrics}
+                analysis={analysis}
+                selectedCountry={selectedCountry}
+                packets={visiblePackets}
+              />
+            </div>
           </div>
 
           {/* RIGHT SIDE: Anomaly prediction selectors & Analytics */}
