@@ -42,7 +42,7 @@ export default function DrillDownPanel({ countryCode, countryName, packets, onCl
   if (!countryCode) return null;
 
   return (
-    <div className="absolute top-0 right-0 h-full w-96 bg-[#0a0a0f] border-l border-white-trans-10 shadow-2xl z-50 flex flex-col transform transition-transform duration-300">
+    <div className="h-full w-full bg-[#0a0a0f] border border-white-trans-10 shadow-2xl rounded flex flex-col transform transition-transform duration-300">
       
       {/* Header */}
       <div className="flex justify-between items-center pad-md border-b border-white-trans-5 bg-gradient-to-r from-transparent to-[#101015]">

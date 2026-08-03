@@ -282,19 +282,33 @@ export default function App() {
                 onSelectCountry={setSelectedCountry} 
               />
             </div>
-            <div style={{ height: '220px', flexShrink: 0 }}>
-              <ThreatStream 
-                packets={visiblePackets} 
-                filterCountry={selectedCountry} 
-              />
-            </div>
-            <div style={{ flexShrink: 0 }}>
-              <AIBriefing 
-                metrics={metrics}
-                analysis={analysis}
-                selectedCountry={selectedCountry}
-              />
-            </div>
+            
+            {!selectedCountry ? (
+              <>
+                <div style={{ height: '220px', flexShrink: 0 }}>
+                  <ThreatStream 
+                    packets={visiblePackets} 
+                    filterCountry={selectedCountry} 
+                  />
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  <AIBriefing 
+                    metrics={metrics}
+                    analysis={analysis}
+                    selectedCountry={selectedCountry}
+                  />
+                </div>
+              </>
+            ) : (
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <DrillDownPanel 
+                  countryCode={selectedCountry}
+                  countryName={countries[selectedCountry] || selectedCountry}
+                  packets={visiblePackets}
+                  onClose={() => setSelectedCountry(null)}
+                />
+              </div>
+            )}
           </div>
 
           {/* RIGHT SIDE: Anomaly prediction selectors & Analytics */}
@@ -326,14 +340,6 @@ export default function App() {
           </div>
 
         </div>
-
-        {/* Drill Down Overlay Panel */}
-        <DrillDownPanel 
-          countryCode={selectedCountry}
-          countryName={countries[selectedCountry] || selectedCountry}
-          packets={visiblePackets}
-          onClose={() => setSelectedCountry(null)}
-        />
       </div>
     </div>
   );

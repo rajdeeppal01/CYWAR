@@ -51,7 +51,7 @@ class CYWARReasoner:
                 Recent Cyber Telemetry Sample: {json.dumps(recent_attacks[:15]) if recent_attacks else "None - Awaiting new attack data."}
                 
                 Provide a structured JSON output with the following fields:
-                1. "summary": A concise 3-4 sentence professional briefing in simple, non-technical English. If there are no recent attacks in the telemetry, provide a general AI summary of the region and what is happening based on the cyber threats and news headlines alone. Otherwise, connect the cyber targeting to the news events, explaining the physical impact on utilities and citizens.
+                1. "summary": A detailed, comprehensive professional briefing (6-8 sentences minimum) in simple, non-technical English. If there are no recent attacks in the telemetry, provide a robust AI summary of the region and what is happening based on the cyber threats and news headlines alone. Otherwise, write a highly descriptive narrative connecting the cyber targeting to the news events, explaining the physical impact on utilities and citizens in depth.
                 2. "primary_actors": List of 2-3 suspected threat actors (APTs) or collectives.
                 3. "critical_sectors": Top 3 sectors under immediate threat expressed in simple terms.
                 4. "tactical_assessment": 1-2 actionable, easy-to-understand defense recommendations.
