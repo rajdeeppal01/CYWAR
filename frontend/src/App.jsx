@@ -9,7 +9,8 @@ import TimelineSlider from './components/TimelineSlider';
 import { Shield, Radio, Terminal, Cpu, Volume2, VolumeX } from 'lucide-react';
 import { audioEngine } from './utils/audioEngine';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000/api';
+const rawApiBase = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000/api';
+const API_BASE = rawApiBase.endsWith('/api') ? rawApiBase : `${rawApiBase}/api`;
 
 const FALLBACK_COUNTRIES = {
   "US": "United States", "RU": "Russia", "CN": "China", "UA": "Ukraine", "IL": "Israel", 
