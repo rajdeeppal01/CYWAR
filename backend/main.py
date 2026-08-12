@@ -14,17 +14,10 @@ app = FastAPI(title="CYWAR - Geopolitical Prediction System API")
 
 import os
 
-# Secure CORS Configuration
-allowed_origins = [
-    "http://localhost:5173",
-    "http://localhost:3000"
-]
-if os.environ.get("FRONTEND_URL"):
-    allowed_origins.append(os.environ.get("FRONTEND_URL"))
-
+# Enable CORS for frontend development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
