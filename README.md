@@ -4,6 +4,18 @@
 
 ![CYWAR Dashboard](https://img.shields.io/badge/Status-Online_Stream-success?style=for-the-badge) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi) ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
+## 💡 The Big Idea: What problem does this solve?
+In the modern era of cyber warfare, raw network traffic logs (IPs, ports, and protocols) lack context. Security Operations Centers (SOCs) are overwhelmed with millions of anonymous pings, making it incredibly difficult to distinguish between automated background "noise" and coordinated, state-sponsored cyber attacks. 
+
+CYWAR bridges the gap between raw network telemetry and geopolitical intelligence. By correlating live cyber attack simulations with real-time global news events using AI, CYWAR provides instant, contextual threat attribution. It transforms confusing server logs into an actionable, military-grade intelligence briefing.
+
+## ⚙️ Core Mechanics: How does it actually work?
+1. **OSINT Aggregation:** A background Python engine continually scrapes live RSS news feeds (like BBC World) to monitor global geopolitical events.
+2. **AI Reasoning (Google Gemini):** The Google Gemini LLM analyzes these headlines to identify emerging global "hotspots" (e.g., *US-Iran Cyber Conflict*) and extracts specific attack vectors and likely state-sponsored Advanced Persistent Threats (APTs) responsible.
+3. **Telemetry Simulation:** A FastAPI backend uses this intelligence to generate a high-volume stream of simulated cyber attack packets that mimic the identified real-world threats.
+4. **Real-Time Data Streaming:** Using Server-Sent Events (SSE), the threat telemetry is streamed to the frontend instantly.
+5. **Interactive Visualization:** The React frontend maps these packets across a global projection, dynamically updating charts, graphs, and a real-time AI briefing panel with the injected OSINT data.
+
 ## ✨ Key Features
 - **Real-Time Threat Telemetry:** Streams simulated, high-volume geopolitical cyber attack packets.
 - **AI-Powered OSINT Reasoning:** Leverages the **Google Gemini API** to continuously parse world news, detect emerging global hotspots, and attribute attacks to specific APT groups (e.g., Volt Typhoon, Sandworm).
