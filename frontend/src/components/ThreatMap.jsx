@@ -59,7 +59,7 @@ const SEVERITY_COLORS = {
   "CRITICAL": "var(--neon-cyan)"   // Teal
 };
 
-export default function ThreatMap({ packets, metrics, selectedCountry, onSelectCountry }) {
+export default function ThreatMap({ packets, metrics, selectedCountry, onSelectCountry, showCables, showKinetic, showEarthquakes, earthquakes }) {
   // Generate curve path between two nodes (quadratic bezier)
   const getCurvePath = (src, dest) => {
     if (src === dest) return "";
@@ -228,9 +228,27 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
             );
           })}
 
-          {/* Faint static curved track lines WITH ARROWHEADS */}
+          {/* Undersea Cables Layer */}
+          {showCables && (
+            <g stroke="var(--neon-cyan)" strokeWidth="1" strokeOpacity="0.4" fill="none" style={{ filter: "drop-shadow(0 0 3px var(--neon-cyan))" }}>
+              <path d="M 195 100 Q 280 90 358 98" /> {/* NY to London */}
+              <path d="M 185 170 Q 280 180 340 225" /> {/* US to Africa */}
+              <path d="M 75 105 Q 0 100 -20 100" /> {/* US West to Asia */}
+              <path d="M 820 100 Q 750 140 648 135" /> {/* Japan to US West */}
+              <path d="M 358 98 Q 400 60 500 75" /> {/* UK to Russia */}
+              <path d="M 390 125 Q 430 180 448 165" /> {/* Europe to Israel */}
+              <path d="M 478 155 Q 500 190 518 175" /> {/* Middle East to India */}
+              <path d="M 615 160 Q 640 180 648 192" /> {/* China to Philippines */}
+              <path d="M 648 285 Q 700 320 745 352" /> {/* Australia to NZ */}
+              <path d="M 175 248 Q 280 280 410 355" /> {/* Brazil to South Africa */}
+              <path d="M 528 175 Q 600 250 648 285" /> {/* India to Australia */}
+              <path d="M 354 105 Q 380 110 390 115" /> {/* UK to DE */}
+            </g>
+          )}
+
+          {/* Faint static curved track lines WITH ARROWHEADS (Cyber only) */}
           <g>
-            {packets.map((pkt, idx) => {
+            {packets.filter(p => !p.is_kinetic).map((pkt, idx) => {
               const path = getCurvePath(pkt.src, pkt.dest);
               if (!path) return null;
               const color = SEVERITY_COLORS[pkt.severity] || "#fff";
@@ -295,6 +313,49 @@ export default function ThreatMap({ packets, metrics, selectedCountry, onSelectC
               );
             })}
           </g>
+
+          {/* Kinetic Asset Layer */}
+          {showKinetic && (
+            <g>
+              {packets.filter(p => p.is_kinetic).map((pkt, idx) => {
+                const node = NODES[pkt.dest];
+                if (!node) return null;
+                // Add a slight offset so it doesn't overlap the city center
+                const offsetX = (idx % 3 === 0) ? -15 : (idx % 2 === 0) ? 15 : 0;
+                const offsetY = (idx % 2 === 0) ? -15 : 15;
+                return (
+                  <g key={`kinetic-${pkt.timestamp}-${idx}`} transform={`translate(${node.x + offsetX}, ${node.y + offsetY})`}>
+                    <circle cx="0" cy="0" r="4" fill="var(--neon-magenta)" className="animate-pulse" />
+                    <rect x="-8" y="-8" width="16" height="16" fill="none" stroke="var(--neon-magenta)" strokeWidth="0.8" opacity="0.8" />
+                    <text x="12" y="3" fill="var(--neon-magenta)" fontSize="8" fontFamily="monospace" style={{ textShadow: "0 0 3px #000" }}>
+                      {pkt.type.includes("Naval") ? "NAVAL" : "AIR"}
+                    </text>
+                  </g>
+                );
+              })}
+            </g>
+          )}
+
+          {/* Earthquakes Layer */}
+          {showEarthquakes && earthquakes && (
+            <g>
+              {earthquakes.map((eq) => {
+                // Approximate Equirectangular projection mapping to 800x400
+                const x = (eq.lon + 180) * (800 / 360);
+                const y = (90 - eq.lat) * (400 / 180);
+                // Adjust Y slightly to match our stylized map's vertical squash
+                const adjustedY = y * 0.8 + 20; 
+                
+                return (
+                  <g key={`eq-${eq.id}`} transform={`translate(${x}, ${adjustedY})`}>
+                    <circle cx="0" cy="0" r={eq.mag * 3} fill="rgba(251, 191, 36, 0.2)" className="animate-ping" style={{ animationDuration: '3s' }} />
+                    <circle cx="0" cy="0" r="2" fill="var(--neon-yellow)" />
+                    <circle cx="0" cy="0" r={eq.mag * 3} fill="none" stroke="var(--neon-yellow)" strokeWidth="0.5" strokeOpacity="0.5" />
+                  </g>
+                );
+              })}
+            </g>
+          )}
 
           {/* Stylesheet inline for animation paths */}
           <style>{`
