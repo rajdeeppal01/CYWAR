@@ -88,16 +88,23 @@ async def event_generator():
     
     while True:
         try:
-            # 1. Generate live cyber threat packet
+            # 1. Fetch earthquakes periodically
+            current_time = asyncio.get_event_loop().time()
+            if not hasattr(simulator, '_last_quake_fetch') or current_time - simulator._last_quake_fetch > 60.0:
+                quakes = await asyncio.to_thread(simulator.fetch_earthquakes)
+                simulator._last_quake_fetch = current_time
+                if quakes:
+                    yield f"data: {json.dumps({'type': 'earthquake_update', 'data': quakes})}\n\n"
+            
+            # 2. Generate live cyber threat packet
             event = simulator.generate_event()
             
-            # 2. Every 5 seconds, perform full analysis to update forecast stats
-            current_time = asyncio.get_event_loop().time()
+            # 3. Every 5 seconds, perform full analysis to update forecast stats
             if current_time - last_analysis_time >= 5.0 or cached_analysis is None:
                 metrics = simulator.get_anomaly_metrics()
                 recent = list(simulator.attack_history)
                 # Run the reasoning engine
-                cached_analysis = reasoner.analyze(simulator.current_scenario, metrics, recent)
+                cached_analysis = await asyncio.to_thread(reasoner.analyze, simulator.current_scenario, metrics, recent)
                 last_analysis_time = current_time
                 
                 # Combine metrics and AI reasoning into a consolidated state update

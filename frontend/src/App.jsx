@@ -48,6 +48,12 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(true);
   const [playbackCursor, setPlaybackCursor] = useState(null);
   
+  // OSINT Multi-Domain Layers
+  const [earthquakes, setEarthquakes] = useState([]);
+  const [showCables, setShowCables] = useState(false);
+  const [showEarthquakes, setShowEarthquakes] = useState(false);
+  const [showKinetic, setShowKinetic] = useState(false);
+  
   const eventSourceRef = useRef(null);
   const sseReconnectDelayRef = useRef(2000);
 
@@ -144,6 +150,9 @@ export default function App() {
           if (payload.articles) {
             setArticles(payload.articles);
           }
+        } else if (payload.type === 'earthquake_update') {
+          // Handle earthquake data
+          setEarthquakes(payload.data);
         }
       } catch (err) {
         console.error("Error processing SSE message:", err);
@@ -257,6 +266,28 @@ export default function App() {
               <span style={{ color: 'var(--text-bright)', fontWeight: 700 }}>TimescaleDB</span>
             </div>
 
+            {/* OSINT Toggles */}
+            <div className="hidden md:flex gap-2 mr-2">
+              <button 
+                onClick={() => setShowCables(!showCables)}
+                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border transition-colors ${showCables ? 'border-[var(--neon-cyan)] text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10' : 'border-white-trans-10 text-[var(--text-muted)] hover:text-white'}`}
+              >
+                Cables
+              </button>
+              <button 
+                onClick={() => setShowKinetic(!showKinetic)}
+                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border transition-colors ${showKinetic ? 'border-[var(--neon-magenta)] text-[var(--neon-magenta)] bg-[var(--neon-magenta)]/10' : 'border-white-trans-10 text-[var(--text-muted)] hover:text-white'}`}
+              >
+                Kinetic
+              </button>
+              <button 
+                onClick={() => setShowEarthquakes(!showEarthquakes)}
+                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border transition-colors ${showEarthquakes ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)] bg-[var(--neon-yellow)]/10' : 'border-white-trans-10 text-[var(--text-muted)] hover:text-white'}`}
+              >
+                Seismic
+              </button>
+            </div>
+
             {/* Audio Toggle */}
             <button 
               onClick={() => setIsMuted(audioEngine.toggleMute())}
@@ -280,6 +311,10 @@ export default function App() {
                 metrics={metrics}
                 selectedCountry={selectedCountry} 
                 onSelectCountry={setSelectedCountry} 
+                showCables={showCables}
+                showKinetic={showKinetic}
+                showEarthquakes={showEarthquakes}
+                earthquakes={earthquakes}
               />
             </div>
             

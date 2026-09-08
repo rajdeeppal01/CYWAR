@@ -248,6 +248,31 @@ class CYWARSimulator:
             headline = article.get("title", "")
             self.current_headline = headline
             
+    def fetch_earthquakes(self) -> List[Dict[str, Any]]:
+        """Fetch significant earthquakes from USGS"""
+        try:
+            resp = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson', timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                features = data.get('features', [])
+                quakes = []
+                for f in features[:10]: # Only top 10 recent significant
+                    props = f.get('properties', {})
+                    geom = f.get('geometry', {})
+                    if props and geom and geom.get('coordinates'):
+                        quakes.append({
+                            "id": f.get('id'),
+                            "title": props.get('title'),
+                            "mag": props.get('mag'),
+                            "time": props.get('time'),
+                            "lon": geom['coordinates'][0],
+                            "lat": geom['coordinates'][1]
+                        })
+                return quakes
+        except Exception as e:
+            print(f"[USGS] Failed to fetch earthquakes: {e}")
+        return []
+
             # Get the current hotspot name
             hotspot_name = None
             for hs in self.dynamic_hotspots:
@@ -257,7 +282,22 @@ class CYWARSimulator:
             
             # Extract exact attack from news
             extracted = self.llm_extractor.extract_attack_from_news(headline, COUNTRIES, hotspot_name)
-            if extracted:
+            
+            import random
+            if extracted and random.random() < 0.2:
+                asset_type = random.choice(["Naval Strike Group Deployment", "Air Reconnaissance Squadron", "Carrier Strike Group"])
+                event = {
+                    "timestamp": datetime.now().strftime("%H:%M:%S"),
+                    "src": extracted["src"],
+                    "src_name": COUNTRIES.get(extracted["src"], "Unknown"),
+                    "dest": extracted["dest"],
+                    "dest_name": COUNTRIES.get(extracted["dest"], "Unknown"),
+                    "type": asset_type,
+                    "severity": "KINETIC",
+                    "scenario": self.current_scenario,
+                    "is_kinetic": True
+                }
+            elif extracted:
                 event = {
                     "timestamp": datetime.now().strftime("%H:%M:%S"),
                     "src": extracted["src"],
