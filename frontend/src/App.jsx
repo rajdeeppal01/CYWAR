@@ -267,22 +267,46 @@ export default function App() {
             </div>
 
             {/* OSINT Toggles */}
-            <div className="hidden md:flex gap-2 mr-2">
+            <div className="hidden md:flex gap-xs mr-2">
               <button 
                 onClick={() => setShowCables(!showCables)}
-                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border transition-colors ${showCables ? 'border-[var(--neon-cyan)] text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10' : 'border-white-trans-10 text-[var(--text-muted)] hover:text-white'}`}
+                className="cyber-btn"
+                style={{ 
+                  padding: '4px 8px', 
+                  fontSize: '0.7rem', 
+                  textTransform: 'uppercase',
+                  borderColor: showCables ? 'var(--neon-cyan)' : 'var(--border-slate)',
+                  color: showCables ? 'var(--neon-cyan)' : 'var(--text-muted)',
+                  backgroundColor: showCables ? 'rgba(20, 184, 166, 0.1)' : 'var(--bg-dark)'
+                }}
               >
                 Cables
               </button>
               <button 
                 onClick={() => setShowKinetic(!showKinetic)}
-                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border transition-colors ${showKinetic ? 'border-[var(--neon-magenta)] text-[var(--neon-magenta)] bg-[var(--neon-magenta)]/10' : 'border-white-trans-10 text-[var(--text-muted)] hover:text-white'}`}
+                className="cyber-btn"
+                style={{ 
+                  padding: '4px 8px', 
+                  fontSize: '0.7rem', 
+                  textTransform: 'uppercase',
+                  borderColor: showKinetic ? 'var(--neon-magenta, #d946ef)' : 'var(--border-slate)',
+                  color: showKinetic ? 'var(--neon-magenta, #d946ef)' : 'var(--text-muted)',
+                  backgroundColor: showKinetic ? 'rgba(217, 70, 239, 0.1)' : 'var(--bg-dark)'
+                }}
               >
                 Kinetic
               </button>
               <button 
                 onClick={() => setShowEarthquakes(!showEarthquakes)}
-                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded border transition-colors ${showEarthquakes ? 'border-[var(--neon-yellow)] text-[var(--neon-yellow)] bg-[var(--neon-yellow)]/10' : 'border-white-trans-10 text-[var(--text-muted)] hover:text-white'}`}
+                className="cyber-btn"
+                style={{ 
+                  padding: '4px 8px', 
+                  fontSize: '0.7rem', 
+                  textTransform: 'uppercase',
+                  borderColor: showEarthquakes ? 'var(--neon-yellow, #fde047)' : 'var(--border-slate)',
+                  color: showEarthquakes ? 'var(--neon-yellow, #fde047)' : 'var(--text-muted)',
+                  backgroundColor: showEarthquakes ? 'rgba(253, 224, 71, 0.1)' : 'var(--bg-dark)'
+                }}
               >
                 Seismic
               </button>
