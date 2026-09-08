@@ -185,6 +185,31 @@ class CYWARSimulator:
                     matched.append(code)
         return matched
 
+    def fetch_earthquakes(self) -> List[Dict[str, Any]]:
+        """Fetch significant earthquakes from USGS"""
+        try:
+            resp = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson', timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                features = data.get('features', [])
+                quakes = []
+                for f in features[:10]: # Only top 10 recent significant
+                    props = f.get('properties', {})
+                    geom = f.get('geometry', {})
+                    if props and geom and geom.get('coordinates'):
+                        quakes.append({
+                            "id": f.get('id'),
+                            "title": props.get('title'),
+                            "mag": props.get('mag'),
+                            "time": props.get('time'),
+                            "lon": geom['coordinates'][0],
+                            "lat": geom['coordinates'][1]
+                        })
+                return quakes
+        except Exception as e:
+            print(f"[USGS] Failed to fetch earthquakes: {e}")
+        return []
+
     def generate_event(self) -> Dict[str, Any]:
         
         # Re-fetch news every 120 seconds
@@ -247,31 +272,6 @@ class CYWARSimulator:
             self.live_articles.append(article) # Rotate
             headline = article.get("title", "")
             self.current_headline = headline
-            
-    def fetch_earthquakes(self) -> List[Dict[str, Any]]:
-        """Fetch significant earthquakes from USGS"""
-        try:
-            resp = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson', timeout=5)
-            if resp.status_code == 200:
-                data = resp.json()
-                features = data.get('features', [])
-                quakes = []
-                for f in features[:10]: # Only top 10 recent significant
-                    props = f.get('properties', {})
-                    geom = f.get('geometry', {})
-                    if props and geom and geom.get('coordinates'):
-                        quakes.append({
-                            "id": f.get('id'),
-                            "title": props.get('title'),
-                            "mag": props.get('mag'),
-                            "time": props.get('time'),
-                            "lon": geom['coordinates'][0],
-                            "lat": geom['coordinates'][1]
-                        })
-                return quakes
-        except Exception as e:
-            print(f"[USGS] Failed to fetch earthquakes: {e}")
-        return []
 
             # Get the current hotspot name
             hotspot_name = None
