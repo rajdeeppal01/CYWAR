@@ -267,7 +267,7 @@ export default function App() {
             </div>
 
             {/* OSINT Toggles */}
-            <div className="hidden md:flex gap-xs mr-2">
+            <div style={{ display: 'flex', gap: '8px', marginRight: '8px', alignItems: 'center' }}>
               <button 
                 onClick={() => setShowCables(!showCables)}
                 className="cyber-btn"
