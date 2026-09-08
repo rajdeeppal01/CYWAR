@@ -99,8 +99,8 @@ async def event_generator():
             # 2. Generate live cyber threat packet
             event = simulator.generate_event()
             
-            # 3. Every 5 seconds, perform full analysis to update forecast stats
-            if current_time - last_analysis_time >= 5.0 or cached_analysis is None:
+            # 3. Every 60 seconds, perform full analysis to update forecast stats (respects Gemini free tier limits)
+            if current_time - last_analysis_time >= 60.0 or cached_analysis is None:
                 metrics = simulator.get_anomaly_metrics()
                 recent = list(simulator.attack_history)
                 # Run the reasoning engine

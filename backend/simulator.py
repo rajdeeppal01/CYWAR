@@ -223,8 +223,8 @@ class CYWARSimulator:
                 self._news_counter = 0
             self._news_counter += 1
             
-            # Every 3rd packet, try to extract an attack from live news to reduce honeypot spam
-            if self._news_counter % 3 == 0 and self.live_articles:
+            # Every 30th packet (approx 15 seconds), try to extract an attack from live news to reduce honeypot spam and respect API limits
+            if self._news_counter % 30 == 0 and self.live_articles:
                 article = self.live_articles.pop(0)
                 self.live_articles.append(article)
                 self.current_headline = article.get("title", "")
